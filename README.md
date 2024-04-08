@@ -1,5 +1,5 @@
 # E-commerce API
-  The project is a part of Integrify's Node.js backend module 2024.
+  The project is a part of Integrify's Node.js backend module 2024 and will be used for fullstack.
   
   We as a group, [Woong](https://github.com/Woongsik), [Roshan](https://github.com/roshanbist) and [Ganesh](https://github.com/ganesh-poudel), 
   simulated E-commerce API and try to provide a good collection of REST APIs between users and server transactions.
