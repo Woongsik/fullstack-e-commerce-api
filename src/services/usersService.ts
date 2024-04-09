@@ -5,8 +5,8 @@ const getAllUsers = async (): Promise<UserDocument[]> => {
   return await User.find();
 };
 
-const getUserById = async (id: string): Promise<UserDocument | null> => {
-  return await User.findById(id);
+const getUserById = async (userId: string): Promise<UserDocument | null> => {
+  return await User.findById(userId);
 };
 
 const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: string | null = null): Promise<UserDocument | null> => {
@@ -18,12 +18,12 @@ const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: strin
   return newUser;
 };
 
-const deleteUser = async (id: string): Promise<UserDocument | null> => {
-  return await User.findByIdAndDelete(id);
+const deleteUser = async (userId: string): Promise<UserDocument | null> => {
+  return await User.findByIdAndDelete(userId);
 };
 
-const updateUser = async (id: string, newInformation: Partial<UserDocument>): Promise<UserDocument | null> => {
-  const updatedUser = await User.findByIdAndUpdate(id, newInformation, {
+const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Promise<UserDocument | null> => {
+  const updatedUser = await User.findByIdAndUpdate(userId, updateInfo, {
     new: true,
   });
   return updatedUser;
