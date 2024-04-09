@@ -12,7 +12,7 @@ const getUserById = async (id: string): Promise<UserDocument | null> => {
 const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: string | null = null): Promise<UserDocument | null> => {
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
-    await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
   }
 
   return newUser;

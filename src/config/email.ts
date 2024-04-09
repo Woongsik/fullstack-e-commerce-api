@@ -15,13 +15,13 @@ export const sendWelcomeEmail = async (user: UserDocument, plainPasswordForGoogl
   const sender: string = 'admin@trial-jy7zpl93980l5vx6.mlsender.net';
   const sentFrom: Sender = new Sender(sender, "fs17-Node, Group 5");
   const recipients: Recipient[] = [
-    new Recipient(user.email, `Hello, ${user.firstName}!`)
+    new Recipient(user.email, `Hello, ${user.firstname}!`)
   ];
   
   const personalization = [{
     "email": user.email, 
     "data": {
-      "name": user.firstName,
+      "name": user.firstname,
       "group_name": "fs17-node-group5",
       "password": plainPasswordForGoogleLogin
     }

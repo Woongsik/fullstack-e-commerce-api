@@ -23,7 +23,8 @@ export const ProductSchema = new mongoose.Schema({
     required: true
   },
   sizes: {
-    type: [Size],
+    type: [String],
+    enum: [Size.Small, Size.Medium, Size.Large, Size.OneSize],
     required: true  
   },
   categoryIds: [{

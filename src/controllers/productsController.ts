@@ -2,101 +2,80 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import productsService from '../services/productsService';
-import Product, { ProductDocument } from '../model/ProductModel';
+import ProductModel, { ProductDocument } from '../model/ProductModel';
 import {
+  ApiError,
   BadRequest,
   InternalServerError,
   NotFoundError,
 } from '../errors/ApiError';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
 
-// #Roshan
-// Get all the products list
-export async function getAllProducts(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
+export async function getAllProducts(request: Request, response: Response, next: NextFunction) {
   try {
     const filterProduct: Partial<FilterProduct> = request.query;
-    const productsList: ProductsList = await productsService.getAllProducts(
-      filterProduct
-    );
-    response.status(200).json(productsList);
-  } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return response.status(400).json({
-        message: 'Bad request to get products',
-      });
-    }
+    const productsList: ProductsList = await productsService.getAllProducts(filterProduct);
 
-    if (error instanceof NotFoundError) {
-      return response.status(404).json({ message: 'Products not found' });
+    if (productsList && productsList.total !== 0) {
+      return response.status(200).json(productsList);
+    } 
+    
+    throw new NotFoundError('No matched products');
+  } catch (e) {
+    if (e instanceof mongoose.Error) {
+      return next(new BadRequest(e.message ?? 'Check the request to get the products'));
+    } else if (e instanceof ApiError) {
+      return next(e)
     }
-
-    next(new InternalServerError('Server error occured'));
+  
+    next(new InternalServerError('Unknown error, cannot get products'));
   }
 }
 
-// #Roshan
-// Create new product
-export async function createNewProduct(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
+export async function createNewProduct(request: Request,response: Response,next: NextFunction) {
   try {
-    const newData = new Product(request.body);
-    const newProductData = await productsService.createNewProduct(newData);
-    response.status(201).json(newProductData);
-  } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return response.status(400).json({
-        message: 'Wrong data format to create product',
-      });
+    const productInfo: ProductDocument = new ProductModel(request.body);
+    const newProduct: ProductDocument | null = await productsService.createNewProduct(productInfo);
+    if (newProduct) {
+      return response.status(201).json(newProduct);
     }
 
-    // TODO if it is badRequest alreay, you can set the message from service
-    if (error instanceof BadRequest) {
-      return response.status(400).json({ message: 'Incomplete product data' });
+    throw new InternalServerError('Unknow error when create new proudct');
+  } catch (e) {
+    if (e instanceof mongoose.Error) {
+      return next(new BadRequest(e.message ?? 'Wrong data format to create product'));
+    } else if (e instanceof ApiError) {
+      return next(e)
     }
-
-    next(new InternalServerError('Serve error occured'));
+  
+    next(new InternalServerError('Unknown error, cannot create product'));
   }
 }
 
-// #Roshan
-// Update product
-export async function updateProduct(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
+export async function updateProduct(request: Request,response: Response,next: NextFunction) {
   try {
     const newData: Partial<ProductDocument> = request.body;
-    const updatedProduct = await productsService.updateProduct(
+    const updatedProduct: ProductDocument | null = await productsService.updateProduct(
       request.params.productId,
       newData
     );
 
-    response.status(200).json(updatedProduct);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return response.status(404).json({
-        message: `No matched product with id ${request.params.productId} found`,
-      });
-    } else if (error instanceof mongoose.Error.CastError) {
-      return response.status(400).json({
-        message: 'wrong id format',
-      });
+    if (updatedProduct) {
+      response.status(200).json(updatedProduct);
     }
 
-    next(new InternalServerError('Server error occured'));
+    throw new InternalServerError('Unknow error when update new proudct');
+  } catch (e) {
+    if (e instanceof mongoose.Error) {
+      return next(new BadRequest(e.message ?? 'Wrong data format to update product'));
+    } else if (e instanceof ApiError) {
+      return next(e)
+    }
+  
+    next(new InternalServerError('Unknown error, cannot update product'));
   }
 }
 
-// #Roshan
-// Get product by Id
 export async function getProductById(
   request: Request,
   response: Response,
@@ -104,26 +83,23 @@ export async function getProductById(
 ) {
   try {
     const productId = request.params.productId;
-
-    const singleProductData = await productsService.getProductById(productId);
-    response.status(200).json(singleProductData);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return response.status(404).json({
-        message: `No matched product with id ${request.params.productId} found`,
-      });
-    } else if (error instanceof mongoose.Error.CastError) {
-      return response.status(400).json({
-        message: 'wrong product id format',
-      });
+    const product: ProductDocument | null = await productsService.getProductById(productId);
+    if (product) {
+      response.status(200).json(product);
     }
-
-    next(new InternalServerError('Server error occured'));
+    
+    throw new NotFoundError('No matched product with id');
+  } catch (e) {
+    if (e instanceof mongoose.Error) {
+      return next(new BadRequest(e.message ?? 'Wrong data format to get product by id'));
+    } else if (e instanceof ApiError) {
+      return next(e)
+    }
+  
+    next(new InternalServerError('Unknown error, cannot get product by id'));
   }
 }
 
-// #Roshan
-// Delete product by Id
 export async function deleteProductById(
   request: Request,
   response: Response,
@@ -131,19 +107,18 @@ export async function deleteProductById(
 ) {
   try {
     const productId = request.params.productId;
-    await productsService.deleteProductById(productId);
-    response.sendStatus(204);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return response.status(404).json({
-        message: `No matched product with id ${request.params.productId} found`,
-      });
-    } else if (error instanceof mongoose.Error.CastError) {
-      return response.status(400).json({
-        message: 'wrong product id format',
-      });
-    }
+    const deletedProduct = await productsService.deleteProductById(productId);
+    if (deletedProduct) {
 
-    next(new InternalServerError('Server error occured'));
+    }
+    return response.sendStatus(204);
+  } catch (e) {
+    if (e instanceof mongoose.Error) {
+      return next(new BadRequest(e.message ?? 'Wrong data format to delete product by id'));
+    } else if (e instanceof ApiError) {
+      return next(e)
+    }
+    
+    next(new InternalServerError('Unknown error, cannot delete product by id'));
   }
 }

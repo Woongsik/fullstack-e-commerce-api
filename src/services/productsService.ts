@@ -1,26 +1,23 @@
 import { FilterQuery } from 'mongoose';
 
-import { BadRequest, NotFoundError } from '../errors/ApiError';
 import Product, { ProductDocument } from '../model/ProductModel';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
 
-const getAllProducts = async (
-  filterProduct: Partial<FilterProduct>
-): Promise<ProductsList> => {
+const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<ProductsList> => {
   const {
-    limit = 0,
-    offset = 0,
+    title,
     min_price,
     max_price,
-    name,
-    category,
-    size,
+    limit = 0,
+    offset = 0,
+    categoryId,
+    size
   } = filterProduct;
 
   const query: FilterQuery<ProductDocument> = {};
 
-  if (name && name.trim().length > 0) {
-    query.name = { $regex: name, $options: 'i' };
+  if (title && title.trim().length > 0) {
+    query.title = { $regex: title, $options: 'i' };
   }
 
   if (min_price) {
@@ -31,26 +28,21 @@ const getAllProducts = async (
     query.price = { ...query.price, $lte: max_price };
   }
 
-  if (category) {
-    query.category = category;
+  if (categoryId) {
+    query.categoryIds = categoryId;
   }
 
   if (size) {
-    query.size = size;
+    query.sizes = size;
   }
 
   const total: number = await Product.find(query).countDocuments();
   const products: ProductDocument[] = await Product.find(query)
-    // TODO: We need to think about the price asc/desc
-    .sort({ name: 1 }) // shows product with name in ascending order
-    .populate({ path: 'category' }) // shows category detail in the product data
+    .sort({ title: 1 }) // shows product with name in ascending order
+    .populate({ path: 'categoryIds' })
     .limit(limit)
     .skip(offset)
     .exec();
-
-  if (!products) {
-    throw new NotFoundError();
-  }
 
   return {
     total,
@@ -58,53 +50,28 @@ const getAllProducts = async (
   };
 };
 
-const createNewProduct = async (
-  product: ProductDocument
-): Promise<ProductDocument> => {
-  const { name, description, price, images, category } = product;
-
-  if (!name || !description || !price || images.length === 0 || !category) {
-    throw new BadRequest();
-  }
-
-  return await product.save();
+const createNewProduct = async (product: ProductDocument): Promise<ProductDocument | null> => {
+  return (await product.save()).populate({
+    path: 'categoryIds'
+  });
 };
 
-const updateProduct = async (
-  id: string,
-  updatedProduct: Partial<ProductDocument>
-) => {
-  const updatedProductInfo = await Product.findByIdAndUpdate(
+const updateProduct = async (id: string, updatedProduct: Partial<ProductDocument>): Promise<ProductDocument | null> => {
+  return await Product.findByIdAndUpdate(
     id,
     updatedProduct,
     { new: true }
   );
-
-  if (!updatedProductInfo) {
-    throw new NotFoundError();
-  }
-
-  return updatedProductInfo;
 };
 
-const getProductById = async (id: string): Promise<ProductDocument> => {
-  const foundProduct = await Product.findById(id).populate('category');
-
-  if (!foundProduct) {
-    throw new NotFoundError();
-  }
-
-  return foundProduct;
+const getProductById = async (id: string): Promise<ProductDocument | null> => {
+  return await Product.findById(id).populate(
+    { path: 'categoryIds' }
+  );
 };
 
-const deleteProductById = async (id: string) => {
-  const foundProduct = await Product.findByIdAndDelete(id);
-
-  if (!foundProduct) {
-    throw new NotFoundError();
-  }
-
-  return foundProduct;
+const deleteProductById = async (id: string): Promise<ProductDocument | null> => {
+  return await Product.findByIdAndDelete(id);
 };
 
 export default {

@@ -22,7 +22,7 @@ export const generateTokens = async (user: UserDocument): Promise<JwtTokens> => 
     {
       email: user.email,
       _id: user._id,
-      firstName: user.firstName
+      firstName: user.firstname
     },
     JWT_SECRET,
     {
@@ -34,7 +34,7 @@ export const generateTokens = async (user: UserDocument): Promise<JwtTokens> => 
     {
       email: user.email,
       _id: user._id,
-      firstName: user.firstName
+      firstName: user.firstname
     },
     JWT_SECRET,
     {

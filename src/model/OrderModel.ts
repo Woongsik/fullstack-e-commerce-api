@@ -12,13 +12,12 @@ export const OrderSchema = new Schema({
     required: true
   },
   itemIds: [{
-    OrderItemSchema,
+    type: OrderItemSchema,
     required: true
   }],
   createdAt: {
     type: Date,
-    default: Date.now(),
-    required: true
+    default: Date.now()
   },
   totalPrice: {
     type: Number,

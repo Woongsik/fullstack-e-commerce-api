@@ -250,7 +250,7 @@ export const forgetPassword = async (
       );
     }
 
-    const plainPasswordToReset: string = `tempPasswordToReset_${matchedUser.firstName}`;
+    const plainPasswordToReset: string = `tempPasswordToReset_${matchedUser.firstname}`;
     const hashedPassword: string = await AuthUtil.getHashedAuth(
       plainPasswordToReset
     );
