@@ -11,13 +11,13 @@ import {
 } from '../errors/ApiError';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
 
-export async function getAllProducts(request: Request, response: Response, next: NextFunction) {
+export async function getAllProducts(req: Request, res: Response, next: NextFunction) {
   try {
-    const filterProduct: Partial<FilterProduct> = request.query;
+    const filterProduct: Partial<FilterProduct> = req.query;
     const productsList: ProductsList = await productsService.getAllProducts(filterProduct);
 
     if (productsList && productsList.total !== 0) {
-      return response.status(200).json(productsList);
+      return res.status(200).json(productsList);
     } 
     
     throw new NotFoundError('No matched products');
@@ -28,16 +28,16 @@ export async function getAllProducts(request: Request, response: Response, next:
       return next(e)
     }
   
-    next(new InternalServerError('Unknown error, cannot get products'));
+    return next(new InternalServerError('Unknown error, cannot get products'));
   }
 }
 
-export async function createNewProduct(request: Request,response: Response,next: NextFunction) {
+export async function createNewProduct(req: Request,res: Response,next: NextFunction) {
   try {
-    const productInfo: ProductDocument = new ProductModel(request.body);
+    const productInfo: ProductDocument = new ProductModel(req.body);
     const newProduct: ProductDocument | null = await productsService.createNewProduct(productInfo);
     if (newProduct) {
-      return response.status(201).json(newProduct);
+      return res.status(201).json(newProduct);
     }
 
     throw new InternalServerError('Unknow error when create new proudct');
@@ -48,20 +48,20 @@ export async function createNewProduct(request: Request,response: Response,next:
       return next(e)
     }
   
-    next(new InternalServerError('Unknown error, cannot create product'));
+    return next(new InternalServerError('Unknown error, cannot create product'));
   }
 }
 
-export async function updateProduct(request: Request,response: Response,next: NextFunction) {
+export async function updateProduct(req: Request, res: Response, next: NextFunction) {
   try {
-    const newData: Partial<ProductDocument> = request.body;
+    const newData: Partial<ProductDocument> = req.body;
     const updatedProduct: ProductDocument | null = await productsService.updateProduct(
-      request.params.productId,
+      req.params.productId,
       newData
     );
 
     if (updatedProduct) {
-      response.status(200).json(updatedProduct);
+      return res.status(200).json(updatedProduct);
     }
 
     throw new InternalServerError('Unknow error when update new proudct');
@@ -72,22 +72,18 @@ export async function updateProduct(request: Request,response: Response,next: Ne
       return next(e)
     }
   
-    next(new InternalServerError('Unknown error, cannot update product'));
+    return next(new InternalServerError('Unknown error, cannot update product'));
   }
 }
 
-export async function getProductById(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
+export async function getProductById(req: Request, res: Response, next: NextFunction) {
   try {
-    const productId = request.params.productId;
+    const productId = req.params.productId;
     const product: ProductDocument | null = await productsService.getProductById(productId);
     if (product) {
-      response.status(200).json(product);
+      return res.status(200).json(product);
     }
-    
+
     throw new NotFoundError('No matched product with id');
   } catch (e) {
     if (e instanceof mongoose.Error) {
@@ -96,22 +92,19 @@ export async function getProductById(
       return next(e)
     }
   
-    next(new InternalServerError('Unknown error, cannot get product by id'));
+    return next(new InternalServerError('Unknown error, cannot get product by id'));
   }
 }
 
-export async function deleteProductById(
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
+export async function deleteProductById(req: Request, res: Response, next: NextFunction) {
   try {
-    const productId = request.params.productId;
+    const productId = req.params.productId;
     const deletedProduct = await productsService.deleteProductById(productId);
     if (deletedProduct) {
-
+      return res.sendStatus(204);
     }
-    return response.sendStatus(204);
+    
+    throw new InternalServerError('Unknown error when deleting product');
   } catch (e) {
     if (e instanceof mongoose.Error) {
       return next(new BadRequest(e.message ?? 'Wrong data format to delete product by id'));
@@ -119,6 +112,6 @@ export async function deleteProductById(
       return next(e)
     }
     
-    next(new InternalServerError('Unknown error, cannot delete product by id'));
+    return next(new InternalServerError('Unknown error, cannot delete product by id'));
   }
 }

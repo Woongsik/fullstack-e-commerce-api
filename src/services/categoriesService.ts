@@ -13,11 +13,9 @@ const createCategory = async (category: CategoryDocument): Promise<CategoryDocum
 }
  
 const updateCategory = async (categoryId: string, newData: Partial<CategoryDocument>): Promise<CategoryDocument | null> => {
-  const updatedCategory = await CategoryModel.findByIdAndUpdate(categoryId, newData, {
+  return await CategoryModel.findByIdAndUpdate(categoryId, newData, {
     new: true
   });
-
-  return updatedCategory;
 }
 
 const deleteCategoryById = async (categoryId: string): Promise<CategoryDocument | null> => {

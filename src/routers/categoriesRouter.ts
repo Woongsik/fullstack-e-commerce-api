@@ -13,9 +13,9 @@ import { passportAuthenticate } from '../misc/utils/AuthUtil';
 const router = express.Router();
 
 router.get('/', getAllCategories);
-router.post('/', passportAuthenticate(), adminCheck, createCategory);
-
 router.get('/:categoryId', getCategoryById);
+
+router.post('/', passportAuthenticate(), adminCheck, createCategory);
 router.put('/:categoryId', passportAuthenticate(), adminCheck, updateCategory);
 router.delete('/:categoryId', passportAuthenticate(), adminCheck, deleteCategory);
 

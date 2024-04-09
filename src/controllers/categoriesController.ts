@@ -11,11 +11,10 @@ import {
   NotFoundError,
 } from '../errors/ApiError';
 
-// #Woong
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const categories: CategoryDocument[] = await categoriesService.getAllCategories();
-    if (categories) {
+    if (categories && categories.length > 0) {
       return res.status(200).json(categories);
     }
 
@@ -31,7 +30,6 @@ export const getAllCategories = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// #Woong
 export const getCategoryById = async (req: Request,res: Response, next: NextFunction) => {
   try {
     const categoryId: string = req.params.categoryId;
@@ -52,7 +50,6 @@ export const getCategoryById = async (req: Request,res: Response, next: NextFunc
   }
 };
 
-// #Woong
 export const createCategory = async (req: Request,res: Response, next: NextFunction) => {
   try {
     const newData: CategoryDocument = new CategoryModel(req.body);
@@ -73,7 +70,6 @@ export const createCategory = async (req: Request,res: Response, next: NextFunct
   }
 };
 
-// #Woong
 export const updateCategory = async (req: Request,res: Response,next: NextFunction) => {
   try {
     const categoryId = req.params.categoryId as string;
@@ -95,12 +91,10 @@ export const updateCategory = async (req: Request,res: Response,next: NextFuncti
   }
 };
 
-// #Woong
 export const deleteCategory = async (req: Request,res: Response, next: NextFunction) => {
   try {
     const categoryId = req.params.categoryId as string;
-    const newCategory: CategoryDocument | null =
-      await categoriesService.deleteCategoryById(categoryId);
+    const newCategory: CategoryDocument | null = await categoriesService.deleteCategoryById(categoryId);
     if (newCategory) {
       return res.status(204).json();
     }

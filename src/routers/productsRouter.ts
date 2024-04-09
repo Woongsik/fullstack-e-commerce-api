@@ -13,15 +13,10 @@ import { passportAuthenticate } from '../misc/utils/AuthUtil';
 const router = express.Router();
 
 router.get('/', getAllProducts);
-router.post('/', passportAuthenticate(), adminCheck, createNewProduct);
-
 router.get('/:productId', getProductById);
+
+router.post('/', passportAuthenticate(), adminCheck, createNewProduct);
 router.put('/:productId', passportAuthenticate(), adminCheck, updateProduct);
-router.delete(
-  '/:productId',
-  passportAuthenticate(),
-  adminCheck,
-  deleteProductById
-);
+router.delete('/:productId', passportAuthenticate(), adminCheck, deleteProductById);
 
 export default router;
