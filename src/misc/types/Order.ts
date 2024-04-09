@@ -1,8 +1,7 @@
 import { Product } from "./Product";
-import { User } from "./User"
 
 export type OrderItem = {
-  product: Product;
+  productId: string; // Product;
   quantity: number;
 }
 
@@ -13,11 +12,11 @@ export enum OrderStatus {
 }
 
 export type Order = {
-  user: User;
-  items: OrderItem[];
+  userId: string; // User id
+  itemIds: string[]; // OrderItem id
   createdAt: string;
   totalPrice: number;
   shippingAddress: string;
-  payment: boolean;
+  payment: string; // Payment id
   status: OrderStatus
 }

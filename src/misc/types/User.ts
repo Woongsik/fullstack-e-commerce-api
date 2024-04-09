@@ -3,19 +3,17 @@ export enum UserRole {
   Admin = 'admin'
 };
 
-export type User = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  userName: string;
-  role: UserRole;
-  avatar: string;
-  address: string;
-  active: boolean;
-};
-
 export type UserActiveAndRole = {
   role: UserRole,
   active: boolean
 }
+
+export type User = UserActiveAndRole & {
+  firstname: string;
+  lastname: string;
+  username: string;
+  address: string;
+  avatar: string;
+  email: string;
+  password: string;
+};

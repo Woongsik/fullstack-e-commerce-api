@@ -1,24 +1,23 @@
 import { ProductDocument } from '../../model/ProductModel';
-import { Category } from './Category';
 import { Size } from './Size';
 
 export type Product = {
-  name: string;
+  title: string;
   price: number;
   description: string;
   images: string[];
-  size: Size;
-  category: Category;
+  sizes: Size[];
+  categoryIds: string[]; // [1,2,3]
 };
 
 export type FilterProduct = {
-  name?: string;
-  limit?: number;
-  offset?: number;
-  min_price?: number;
-  max_price?: number;
-  category?: string;
-  size?: string;
+  title: string;
+  limit: number;
+  offset: number;
+  min_price: number;
+  max_price: number;
+  sizes: string; // L, M, S
+  categoryIds: string; // 1,2,3
 };
 
 export type ProductsList = {

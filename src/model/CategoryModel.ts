@@ -5,16 +5,15 @@ import { Category } from '../misc/types/Category';
 export type CategoryDocument = Document & Category;
 
 export const CategorySchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
     required: true,
-    default: 'Default Category',
-    unique: true,
+    unique: true
   },
   image: {
     type: String,
-    required: true,
-  },
+    required: true
+  }
 });
 
 export default mongoose.model<CategoryDocument>('Category', CategorySchema);

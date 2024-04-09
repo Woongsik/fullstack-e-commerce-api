@@ -6,14 +6,14 @@ import { OrderItemSchema } from './OrderItemModel';
 export type OrderDocument = Document & Order;
 
 export const OrderSchema = new Schema({
-  user: {
+  userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  items: [{
-    type: OrderItemSchema,
-    required: true 
+  itemIds: [{
+    OrderItemSchema,
+    required: true
   }],
   createdAt: {
     type: Date,
