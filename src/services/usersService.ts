@@ -1,33 +1,67 @@
 import { sendWelcomeEmail } from '../config/email';
+import { InternalServerError, NotFoundError } from '../errors/ApiError';
 import User, { UserDocument } from '../model/UserModel';
 
 const getAllUsers = async (): Promise<UserDocument[]> => {
-  return await User.find();
+  const users: UserDocument[] = await User.find();
+
+  if (users && users.length > 0) {
+    return users;
+  }
+
+  throw new NotFoundError('No Users Found');
 };
 
-const getUserById = async (userId: string): Promise<UserDocument | null> => {
-  return await User.findById(userId);
+const getUserById = async (userId: string): Promise<UserDocument> => {
+  const user: UserDocument | null = await User.findById(userId);
+  if (user) {
+    return user;
+  }
+
+  throw new NotFoundError('No matched user with the id');
 };
 
-const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: string | null = null): Promise<UserDocument | null> => {
+const getUserByEmail = async (email: string): Promise<UserDocument> => {
+  const user: UserDocument | null = await User.findOne({ email });
+  if (user) {
+    return user;
+  }
+
+  throw new NotFoundError('No matched user with the email');
+};
+
+const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: string | null = null): Promise<UserDocument> => {
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
     // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    return newUser;
   }
 
-  return newUser;
+  throw new InternalServerError('Cannot create a user in db');
 };
 
-const deleteUser = async (userId: string): Promise<UserDocument | null> => {
-  return await User.findByIdAndDelete(userId);
-};
-
-const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Promise<UserDocument | null> => {
-  const updatedUser = await User.findByIdAndUpdate(userId, updateInfo, {
+const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Promise<UserDocument> => {
+  const updatedUser: UserDocument | null = await User.findByIdAndUpdate(userId, updateInfo, {
     new: true,
   });
-  return updatedUser;
+
+  if (updatedUser) {
+    return updatedUser;
+  }
+  
+  throw new InternalServerError('Cannot update user in db');
 };
+
+const deleteUser = async (userId: string): Promise<UserDocument> => {
+  const deletedUser: UserDocument | null = await User.findByIdAndDelete(userId);
+  if (deletedUser) {
+    return deletedUser;
+  }
+
+  throw new InternalServerError('Cannot delete user in db');
+};
+
+
 
 const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument | null> => {
   const existedUser: UserDocument | null = await getUserByEmail(user.email);
@@ -38,12 +72,14 @@ const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin:
   return await createUser(user, plainPasswordForGoogleLogin);
 }
 
-const getUserByEmail = async (email: string): Promise<UserDocument | null> => {
-  return await User.findOne({ email });
-};
+const updatePassword = async (user: UserDocument): Promise<UserDocument> => {
+  const updatedUser: UserDocument | null = await user.save();
 
-const resetPassword = async (user: UserDocument): Promise<UserDocument | null> => {
-  return await user.save();
+  if (updatedUser) {
+    return updatedUser;
+  }
+
+  throw new InternalServerError('Cannot reset the password in db');
 };
 
 export default {
@@ -52,7 +88,7 @@ export default {
   createUser,
   deleteUser,
   updateUser,
-  resetPassword,
+  updatePassword,
   getUserByEmail,
   findOrCreateUser
 };

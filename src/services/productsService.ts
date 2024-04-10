@@ -2,6 +2,7 @@ import { FilterQuery } from 'mongoose';
 
 import Product, { ProductDocument } from '../model/ProductModel';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
+import { InternalServerError, NotFoundError } from '../errors/ApiError';
 
 const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<ProductsList> => {
   const {
@@ -40,6 +41,10 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
   }
 
   const total: number = await Product.find(query).countDocuments();
+  if (total === 0) {
+    throw new NotFoundError('No matched products');
+  }
+
   const products: ProductDocument[] = await Product.find(query)
     .sort({ 
       title: 1, 
@@ -56,23 +61,50 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
   };
 };
 
-const createNewProduct = async (product: ProductDocument): Promise<ProductDocument | null> => {
-  return (await product.save()).populate({
-    path: 'categories'
-  });
-};
-
-const updateProduct = async (productId: string, updatedProduct: Partial<ProductDocument>): Promise<ProductDocument | null> => {
-  return await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
-};
-
-const getProductById = async (productId: string): Promise<ProductDocument | null> => {
-  return await Product.findById(productId)
+const getProductById = async (productId: string): Promise<ProductDocument> => {
+  const product: ProductDocument | null = await Product.findById(productId)
     .populate({ path: 'categories' });
+
+  if (product) {
+    return product;
+  }
+
+  throw new NotFoundError('No matched product with id');
 };
 
-const deleteProductById = async (productId: string): Promise<ProductDocument | null> => {
-  return await Product.findByIdAndDelete(productId);
+const createNewProduct = async (product: ProductDocument): Promise<ProductDocument> => {
+  const newProduct: ProductDocument | null = await (await product.save())
+    .populate({
+      path: 'categories'
+    });
+
+  if (newProduct) {
+    return newProduct;
+  }
+
+  throw new InternalServerError('Cannot create new proudct in db');
+
+};
+
+const updateProduct = async (productId: string, updateInfo: Partial<ProductDocument>): Promise<ProductDocument> => {
+  const updatedProduct: ProductDocument | null = await Product.findByIdAndUpdate(productId, updateInfo, { 
+    new: true 
+  });
+  
+  if (updatedProduct) {
+    return updatedProduct;
+  }
+
+  throw new InternalServerError('Cannot update proudct in db');
+};
+
+const deleteProductById = async (productId: string): Promise<ProductDocument> => {
+  const deletedProduct: ProductDocument | null = await Product.findByIdAndDelete(productId);
+  if (deletedProduct) {
+    return deletedProduct;
+  }
+
+  throw new InternalServerError('Cannot delete proudct in db');
 };
 
 export default {
