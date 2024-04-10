@@ -1,17 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-import { Order } from '../misc/types/Order';
+import { Order, OrderStatus } from '../misc/types/Order';
 import { OrderItemSchema } from './OrderItemModel';
 
 export type OrderDocument = Document & Order;
 
 export const OrderSchema = new Schema({
-  userId: {
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  itemIds: [{
+  items: [{
     type: OrderItemSchema,
     required: true
   }],
@@ -26,6 +26,15 @@ export const OrderSchema = new Schema({
   },
   shippingAddress: {
     type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: OrderStatus,
+    default: OrderStatus.Prepare
+  },
+  payment: {
+    type: Boolean,
     required: true
   }
 });

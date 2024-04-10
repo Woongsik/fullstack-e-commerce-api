@@ -14,15 +14,7 @@ import User, { UserDocument } from '../model/UserModel';
 import AuthUtil from '../misc/utils/AuthUtil';
 import { JwtTokens } from '../misc/types/JwtPayload';
 import { UserRole } from '../misc/types/User';
-
-const getUserFromRequest = (req: Request): UserDocument => {
-  const user = req.user as UserDocument | undefined;
-  if (!user) {
-    throw new ForbiddenError('User is not defined, need to login');
-  }
-
-  return user;
-};
+import { getUserFromRequest } from './controllerUtil';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {

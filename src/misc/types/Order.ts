@@ -1,20 +1,20 @@
 import { Product } from "./Product";
 
 export type OrderItem = {
-  productId: string; // Product;
+  product: string; // ProductId;
   quantity: number;
 }
 
 export enum OrderStatus {
-  PrepareItem = 'prepare',
-  Delivering = 'delivering',
+  Prepare = 'prepare',
+  OnDelivery = 'delivering',
   Delivered = 'delivered'
 }
 
 export type Order = {
-  userId: string; // User id
-  itemIds: string[]; // OrderItem id
-  createdAt: string;
+  user: string; // User id
+  items: string[]; // OrderItem id
+  createdAt: Date;
   totalPrice: number;
   shippingAddress: string;
   payment: string; // Payment id
