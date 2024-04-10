@@ -1,14 +1,14 @@
 export enum SortCreated {
-  LATEST = 'Latest',
-  OLDEST = 'Oldest'
+  ASC = 'ASC',
+  DESC = 'DESC'
 }
 
 export enum SortPrice {
-  PRICE_ASC = 'Price_ASC',
-  PRICE_DES = 'Price_DES'
+  ASC = 'ASC',
+  DECS = 'DECS'
 }
 
 export enum SortTitle {
-  ASC = 'Title_ASC',
-  DES = 'Title_DES'
+  ASC = 'ASC',
+  DECS = 'DECS'
 }

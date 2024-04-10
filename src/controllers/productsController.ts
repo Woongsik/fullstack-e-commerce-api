@@ -17,6 +17,7 @@ export async function getAllProducts(req: Request, res: Response, next: NextFunc
     
     return res.status(200).json(productsList);
   } catch (e) {
+    console.log(e);
     if (e instanceof mongoose.Error) {
       return next(new BadRequest(e.message ?? 'Check the request to get the products'));
     } else if (e instanceof ApiError) {

@@ -3,6 +3,7 @@ import { FilterQuery } from 'mongoose';
 import Product, { ProductDocument } from '../model/ProductModel';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
 import { InternalServerError, NotFoundError } from '../errors/ApiError';
+import { SortCreated, SortPrice, SortTitle } from '../misc/types/Sort';
 
 const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<ProductsList> => {
   const {
@@ -45,12 +46,22 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     throw new NotFoundError('No matched products');
   }
 
+  const sortQuery: any = {};
+  if (sort_title) {
+    sortQuery.title = (sort_title === SortTitle.ASC ? 1 : -1);
+  }
+
+  if (sort_created) {
+    sortQuery.createdAt = (sort_created === SortCreated.ASC ? 1 : -1);
+  }
+
+  if (sort_price) {
+    sortQuery.price = (sort_price === SortPrice.ASC ? 1 : -1);
+  }
+
   const products: ProductDocument[] = await Product.find(query)
-    .sort({ 
-      title: 1, 
-      createdAt: 1, 
-      price: 1 
-    }).populate({ path: 'categories' })
+    .sort(sortQuery)
+    .populate({ path: 'categories' })
     .limit(limit)
     .skip(offset)
     .exec();
