@@ -20,17 +20,12 @@ export const jwtStrategy: JwtStrategy = new JwtStrategy({
 }, async (payload: JwtPayload, done: any) => {
   try {
     const userEmail: string = payload.email;
-    const user: UserDocument | null = await usersService.getUserByEmail(userEmail);
+    const user: UserDocument = await usersService.getUserByEmail(userEmail);
     if (user && user.active) {
       return done(null, user);
     }
 
-    let message = 'User is not existed';
-    if (user && !user.active) {
-      message = 'User is inactive';
-    } 
-
-    throw new NotFoundError(message);
+    throw new NotFoundError('User is inactive');
   } catch (e) {
     done(e, false); 
   }
@@ -54,15 +49,11 @@ export const googleStrategy = new GoogleTokenStrartegy({
       userName: googleInfo.name,
       role: UserRole.Customer,
       avatar: googleInfo.picture,
-      address: 'Need to be updated' // Need to be updated
+      address: 'Please update address!' // Need to be updated
     });
   
-    const user: UserDocument | null = await usersService.findOrCreateUser(userInfo, plainPasswordForGoogleLogin);
-    if (user) {
-      return done(null, user);
-    }
-
-    throw new NotFoundError('User is not found');
+    const user: UserDocument = await usersService.findOrCreateUser(userInfo, plainPasswordForGoogleLogin);
+    return done(null, user);
   } catch (e) {
     done(e, false);
   }

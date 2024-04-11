@@ -26,7 +26,13 @@ export type FilterProduct = ProductBase & {
   sort_price: SortPrice;
 };
 
+export type MaxMinPrice = {
+  min: number;
+  max: number;
+}
+
 export type ProductsList = {
   total: number;
   products: ProductDocument[];
+  maxMinPrice: MaxMinPrice;
 };

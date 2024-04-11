@@ -48,7 +48,7 @@ const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Pr
   if (updatedUser) {
     return updatedUser;
   }
-  
+
   throw new InternalServerError('Cannot update user in db');
 };
 
@@ -61,8 +61,8 @@ const deleteUser = async (userId: string): Promise<UserDocument> => {
   throw new InternalServerError('Cannot delete user in db');
 };
 
-const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument | null> => {
-  const existedUser: UserDocument | null = await getUserByEmail(user.email);
+const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument> => {
+  const existedUser: UserDocument | null = await User.findOne({ email: user.email });
   if (existedUser) {
     return existedUser;
   }

@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 
 import Product, { ProductDocument } from '../model/ProductModel';
-import { FilterProduct, ProductsList } from '../misc/types/Product';
+import { FilterProduct, MaxMinPrice, ProductsList } from '../misc/types/Product';
 import { InternalServerError, NotFoundError } from '../errors/ApiError';
 import { SortCreated, SortPrice, SortTitle } from '../misc/types/Sort';
 
@@ -66,8 +66,18 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     .skip(offset)
     .exec();
 
+  const maxMinPrice: MaxMinPrice = (await Product.aggregate([
+    { $match: query },
+    { $facet: {
+      min: [{ $sort: { price:  1 } }, { $limit: 1 }],
+      max: [{ $sort: { price: -1 } }, { $limit: 1 }]
+    }},
+    { $project: { min: { $first: "$min.price" }, max: { $first: "$max.price" } } }
+  ]))[0];
+
   return {
     total,
+    maxMinPrice,
     products,
   };
 };
