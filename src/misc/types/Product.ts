@@ -7,7 +7,7 @@ export type ProductBase = {
 }
 export type Product = ProductBase & {
   sizes: Size[];
-  categories: string[];
+  category: string;
   price: number;
   description: string;
   images: string[];
@@ -16,17 +16,17 @@ export type Product = ProductBase & {
 
 export type FilterProduct = ProductBase & {
   size: Size,
-  category: string;
-  limit: number;
-  offset: number;
+  categoryId: string;
   min_price: number;
   max_price: number;
   sort_created: SortCreated;
   sort_title: SortTitle;
   sort_price: SortPrice;
+  limit: number;
+  offset: number;
 };
 
-export type MaxMinPrice = {
+export type MinMaxPrice = {
   min: number;
   max: number;
 }
@@ -34,5 +34,5 @@ export type MaxMinPrice = {
 export type ProductsList = {
   total: number;
   products: ProductDocument[];
-  maxMinPrice: MaxMinPrice;
+  minMaxPrice: MinMaxPrice;
 };

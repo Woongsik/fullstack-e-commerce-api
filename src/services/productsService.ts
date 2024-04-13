@@ -1,7 +1,7 @@
-import { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 
 import Product, { ProductDocument } from '../model/ProductModel';
-import { FilterProduct, MaxMinPrice, ProductsList } from '../misc/types/Product';
+import { FilterProduct, MinMaxPrice, ProductsList } from '../misc/types/Product';
 import { InternalServerError, NotFoundError } from '../errors/ApiError';
 import { SortCreated, SortPrice, SortTitle } from '../misc/types/Sort';
 
@@ -12,7 +12,7 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     max_price,
     limit = 0,
     offset = 0,
-    category,
+    categoryId,
     size,
     sort_created,
     sort_price,
@@ -33,8 +33,8 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     query.price = { ...query.price, $lte: max_price };
   }
 
-  if (category) {
-    query.categories = category;
+  if (categoryId) {
+    query.category = categoryId;
   }
 
   if (size) {
@@ -61,30 +61,38 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
 
   const products: ProductDocument[] = await Product.find(query)
     .sort(sortQuery)
-    .populate({ path: 'categories' })
+    .populate({ path: 'category' })
     .limit(limit)
     .skip(offset)
     .exec();
 
-  const maxMinPrice: MaxMinPrice = (await Product.aggregate([
+  console.log('query', query, sortQuery);
+  
+  if (categoryId) {
+    query.category = new mongoose.Types.ObjectId(categoryId);
+  }
+
+  const minMaxPrice: MinMaxPrice = (await Product.aggregate([
     { $match: query },
     { $facet: {
-      min: [{ $sort: { price:  1 } }, { $limit: 1 }],
+      min: [{ $sort: { price: 1 } }, { $limit: 1 }],
       max: [{ $sort: { price: -1 } }, { $limit: 1 }]
     }},
     { $project: { min: { $first: "$min.price" }, max: { $first: "$max.price" } } }
   ]))[0];
 
+  console.log('query', query, sortQuery);
+
   return {
     total,
-    maxMinPrice,
+    minMaxPrice,
     products,
   };
 };
 
 const getProductById = async (productId: string): Promise<ProductDocument> => {
   const product: ProductDocument | null = await Product.findById(productId)
-    .populate({ path: 'categories' });
+    .populate({ path: 'category' });
 
   if (product) {
     return product;
@@ -96,7 +104,7 @@ const getProductById = async (productId: string): Promise<ProductDocument> => {
 const createNewProduct = async (product: ProductDocument): Promise<ProductDocument> => {
   const newProduct: ProductDocument | null = await (await product.save())
     .populate({
-      path: 'categories'
+      path: 'category'
     });
 
   if (newProduct) {

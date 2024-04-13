@@ -24,14 +24,14 @@ export const ProductSchema = new mongoose.Schema({
   },
   sizes: {
     type: [String],
-    enum: Size,
+    enum: [Size.Large, Size.Medium, Size.Small, Size.OneSize],
     required: true  
   },
-  categories: [{
+  category: {
     type: Schema.Types.ObjectId,
     ref: 'Category',
     required: true
-  }],
+  },
   createdAt: {
     type: Date,
     default: Date.now()

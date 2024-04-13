@@ -8,7 +8,7 @@ const getAllOrders = async (userId: string): Promise<OrderDocument[]> => {
     { path: 'user', select: { _id: 0, password: 0 }},
     { path: 'items.product',
       populate: {
-        path: 'categories'
+        path: 'category'
       }
     }
    ]);
@@ -26,7 +26,7 @@ const getOrderyById = async (orderId: string): Promise<OrderDocument> => {
       { path: 'user', select: { _id: 0, password: 0 }},
       { path: 'items.product',
         populate: {
-        path: 'categories'
+        path: 'category'
       }
     }
   ]);
@@ -43,7 +43,7 @@ const createOrder = async (order: OrderDocument): Promise<OrderDocument> => {
     .populate([
       { path: 'user', select: { _id: 0, password: 0 }},
       { path: 'items.product', populate: {
-          path: 'categories'
+          path: 'category'
         }
       }
     ]);
@@ -63,7 +63,7 @@ const updateOrder = async (orderId: string, updateInfo: Partial<OrderDocument>):
       { path: 'user', select: { _id: 0, password: 0 }},
       { path: 'items.product',
         populate: {
-          path: 'categories'
+          path: 'category'
         }
       }
     ]);
@@ -81,7 +81,7 @@ const deleteOrderById = async (orerId: string): Promise<OrderDocument> => {
       { path: 'user', select: { _id: 0, password: 0 }},
       { path: 'items.product',
         populate: {
-          path: 'categories'
+          path: 'category'
         }
       }
     ]);
