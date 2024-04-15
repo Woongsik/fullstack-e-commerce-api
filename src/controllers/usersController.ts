@@ -49,7 +49,7 @@ export const getUserById = async (req: Request,res: Response,next: NextFunction)
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userInfo: Partial<User> = req.body;
+      const userInfo: User = req.body;
       
       // Check the admin mail, otherwise set Customer role
       // Admin can switch the role later
@@ -64,6 +64,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
       
       return res.status(201).json(newUser);
     } catch (e) {
+      console.log(e);
       if (e instanceof mongoose.Error) { // from mongoose
         return next(new BadRequest(e.message ??'Wrong data format to create'));
       } else if (e instanceof ApiError) {
@@ -142,6 +143,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const tokens: JwtTokens = await AuthUtil.generateTokens(user);
     return res.status(200).json({ tokens, user });
   } catch (e) {
+    console.log(e);
     if (e instanceof mongoose.Error) { // from mongoose
       return next(new BadRequest(e.message ?? 'Wrong data format to login'));
     } else if (e instanceof ApiError) {

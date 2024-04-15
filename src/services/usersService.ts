@@ -1,9 +1,13 @@
 import { sendWelcomeEmail } from '../config/email';
-import { InternalServerError, NotFoundError } from '../errors/ApiError';
+import { BadRequest, InternalServerError, NotFoundError } from '../errors/ApiError';
 import User, { UserDocument } from '../model/UserModel';
 
+const options = {
+  // password: 0
+}
+
 const getAllUsers = async (): Promise<UserDocument[]> => {
-  const users: UserDocument[] = await User.find();
+  const users: UserDocument[] = await User.find({}, options);
 
   if (users && users.length > 0) {
     return users;
@@ -13,7 +17,7 @@ const getAllUsers = async (): Promise<UserDocument[]> => {
 };
 
 const getUserById = async (userId: string): Promise<UserDocument> => {
-  const user: UserDocument | null = await User.findById(userId);
+  const user: UserDocument | null = await User.findById(userId, options);
   if (user) {
     return user;
   }
@@ -22,7 +26,7 @@ const getUserById = async (userId: string): Promise<UserDocument> => {
 };
 
 const getUserByEmail = async (email: string): Promise<UserDocument> => {
-  const user: UserDocument | null = await User.findOne({ email });
+  const user: UserDocument | null = await User.findOne({ email }, options);
   if (user) {
     return user;
   }
@@ -31,6 +35,12 @@ const getUserByEmail = async (email: string): Promise<UserDocument> => {
 };
 
 const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: string | null = null): Promise<UserDocument> => {
+  // Check if email is in use
+  const existedUser: UserDocument | null = await User.findOne({ email: user.email });
+  if (existedUser) {
+    throw new BadRequest(`${user.email} is already in use!`);
+  }
+  
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
     // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
@@ -53,7 +63,7 @@ const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Pr
 };
 
 const deleteUser = async (userId: string): Promise<UserDocument> => {
-  const deletedUser: UserDocument | null = await User.findByIdAndDelete(userId);
+  const deletedUser: UserDocument | null = await User.findByIdAndDelete(userId, options);
   if (deletedUser) {
     return deletedUser;
   }
@@ -62,7 +72,7 @@ const deleteUser = async (userId: string): Promise<UserDocument> => {
 };
 
 const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument> => {
-  const existedUser: UserDocument | null = await User.findOne({ email: user.email });
+  const existedUser: UserDocument | null = await User.findOne({ email: user.email }, options);
   if (existedUser) {
     return existedUser;
   }
