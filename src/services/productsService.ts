@@ -66,8 +66,6 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     .skip(offset)
     .exec();
 
-  console.log('query', query, sortQuery);
-  
   if (categoryId) {
     query.category = new mongoose.Types.ObjectId(categoryId);
   }
@@ -80,8 +78,6 @@ const getAllProducts = async (filterProduct: Partial<FilterProduct>): Promise<Pr
     }},
     { $project: { min: { $first: "$min.price" }, max: { $first: "$max.price" } } }
   ]))[0];
-
-  console.log('query', query, sortQuery);
 
   return {
     total,
@@ -118,6 +114,8 @@ const createNewProduct = async (product: ProductDocument): Promise<ProductDocume
 const updateProduct = async (productId: string, updateInfo: Partial<ProductDocument>): Promise<ProductDocument> => {
   const updatedProduct: ProductDocument | null = await Product.findByIdAndUpdate(productId, updateInfo, { 
     new: true 
+  }).populate({
+    path: 'category'
   });
   
   if (updatedProduct) {

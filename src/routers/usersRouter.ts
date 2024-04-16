@@ -10,7 +10,8 @@ import {
   getUserById,
   login,
   googleLogin,
-  checkEmail
+  checkEmail,
+  getUserSession
 } from '../controllers/usersController';
 import { passportAuthenticate } from '../misc/utils/AuthUtil';
 import { PassportMethod } from '../misc/types/Passport';
@@ -19,6 +20,7 @@ import adminCheck from '../middlewares/adminCheck';
 const router = express.Router();
 
 router.get('/', getAllUsers);
+router.get('/session', passportAuthenticate(), getUserSession);
 router.get('/:userId', getUserById);
 
 router.post('/', createUser);

@@ -5,6 +5,7 @@ import usersService from '../services/usersService';
 import {
   ApiError,
   BadRequest,
+  ForbiddenError,
   InternalServerError,
   NotFoundError
 } from '../errors/ApiError';
@@ -37,7 +38,7 @@ export const getUserById = async (req: Request,res: Response,next: NextFunction)
     
     return res.status(200).json(user);
   } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {
+    if (e instanceof mongoose.Error) {
       return next(new BadRequest(e.message ?? 'Wrong id format'));
     } else if (e instanceof ApiError) {
       return next(e);
@@ -47,10 +48,26 @@ export const getUserById = async (req: Request,res: Response,next: NextFunction)
   }
 };
 
+export const getUserSession = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user: UserDocument = getUserFromRequest(req);
+    if (user) {
+      return res.status(200).json(user);
+    } 
+
+    throw new ForbiddenError('You need to login!');
+  } catch (e) {
+     if (e instanceof ApiError) {
+      return next(e);
+    }
+    return next(new InternalServerError('Unknown error to check session'));
+  }
+}
+
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userInfo: User = req.body;
-      
+
       // Check the admin mail, otherwise set Customer role
       // Admin can switch the role later
       userInfo.role = UserRole.Customer;

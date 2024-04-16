@@ -9,6 +9,7 @@ import {
   InternalServerError
 } from '../errors/ApiError';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
+import { sortSizes } from './controllerUtil';
 
 export async function getAllProducts(req: Request, res: Response, next: NextFunction) {
   try {
@@ -30,7 +31,7 @@ export async function getAllProducts(req: Request, res: Response, next: NextFunc
 
 export async function getProductById(req: Request, res: Response, next: NextFunction) {
   try {
-    const productId = req.params.productId;
+    const productId: string = req.params.productId as string;
     const product: ProductDocument = await productsService.getProductById(productId);
 
     return res.status(200).json(product);
@@ -47,9 +48,16 @@ export async function getProductById(req: Request, res: Response, next: NextFunc
 
 export async function createNewProduct(req: Request,res: Response,next: NextFunction) {
   try {
+    const { categoryId } = req.body;
     const productInfo: ProductDocument = new ProductModel(req.body);
-    const newProduct: ProductDocument = await productsService.createNewProduct(productInfo);
+    if (categoryId) {
+      productInfo.category = categoryId;
+    }
+    if (productInfo.sizes) {
+      productInfo.sizes = sortSizes(productInfo.sizes);
+    }
     
+    const newProduct: ProductDocument = await productsService.createNewProduct(productInfo);
     return res.status(201).json(newProduct);
   } catch (e) {
     if (e instanceof mongoose.Error) {
@@ -64,7 +72,15 @@ export async function createNewProduct(req: Request,res: Response,next: NextFunc
 
 export async function updateProduct(req: Request, res: Response, next: NextFunction) {
   try {
+    const { categoryId } = req.body;
     const updateInfo: Partial<ProductDocument> = req.body;
+    if (categoryId) {
+      updateInfo.category = categoryId;
+    }
+    if (updateInfo.sizes) {
+      updateInfo.sizes = sortSizes(updateInfo.sizes);
+    }
+    
     const updatedProduct: ProductDocument = await productsService.updateProduct(
       req.params.productId,
       updateInfo
