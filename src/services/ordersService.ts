@@ -4,7 +4,9 @@ import OrderModel, { OrderDocument } from "../model/OrderModel";
 const getAllOrders = async (userId: string): Promise<OrderDocument[]> => {
   const orders: OrderDocument[] = await OrderModel.find({
     user: userId
-  }).populate([
+  })
+  .sort({ createdAt: -1 })
+  .populate([
     { path: 'user', select: { _id: 0, password: 0 }},
     { path: 'items.product',
       populate: {

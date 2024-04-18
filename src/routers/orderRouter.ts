@@ -5,7 +5,8 @@ import {
   getOrderByOrderId,
   createOrder,
   updateOrder,
-  deleteOrder
+  deleteOrder,
+  getClientSecret
 } from '../controllers/ordersController';
 import { passportAuthenticate } from '../misc/utils/AuthUtil';
 
@@ -17,5 +18,7 @@ router.get('/:orderId', passportAuthenticate(), getOrderByOrderId);
 router.post('/', passportAuthenticate(), createOrder);
 router.put('/:orderId', passportAuthenticate(), updateOrder);
 router.delete('/:orderId', passportAuthenticate(), deleteOrder);
+
+router.post('/stripe', getClientSecret);
 
 export default router;

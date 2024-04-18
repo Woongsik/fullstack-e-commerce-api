@@ -12,6 +12,9 @@ import { Order } from '../misc/types/Order';
 import { UserDocument } from '../model/UserModel';
 import { getUserFromRequest } from './controllerUtil';
 
+const secretKey = 'sk_test_51P6SE2Jo0VhvXeMmlsDrG67UTAFU772Qmbo6WImJm61GIRRR3WJ3Z9InIGqU5tMEw7PB5yk8oXSqLNjsTrySlg7s005fzisE74';
+const stripe = require("stripe")(secretKey);
+
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user: UserDocument = getUserFromRequest(req);
@@ -97,3 +100,25 @@ export const deleteOrder = async (req: Request, res: Response, next: NextFunctio
     return next(new InternalServerError('Unkown error ouccured to delete the order'));
   }
 };
+
+export const getClientSecret = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const totalAmount: number = req.body.totalAmount;
+    const paymentIntent = await stripe.paymentIntents.create({
+      currency: "EUR",
+      amount: totalAmount * 100, // 0.50 euro = 50
+      automatic_payment_methods: { enabled: true },
+    });
+
+    // Send publishable key and PaymentIntent details to client
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (e) {
+    return res.status(400).send({
+      error: {
+        message: (e as any).message,
+      },
+    });
+  }
+}

@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 import { Order, OrderStatus } from '../misc/types/Order';
 import { OrderItemSchema } from './OrderItemModel';
+import { AddressSchema } from './AddressModel';
 
 export type OrderDocument = Document & Order;
 
@@ -25,7 +26,7 @@ export const OrderSchema = new Schema({
     required: true
   },
   shippingAddress: {
-    type: String,
+    type: AddressSchema,
     required: true
   },
   status: {
