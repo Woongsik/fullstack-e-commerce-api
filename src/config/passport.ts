@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 import { JwtPayload } from '../misc/types/JwtPayload';
 import usersService from '../services/usersService';
-import User, { UserDocument } from '../model/UserModel';
+import UserModel, { UserDocument } from '../model/UserModel';
 import { NotFoundError } from '../errors/ApiError';
 import { GoogleUserInfo, ParsedToken } from '../misc/types/GoogleCredential';
 import { UserRole } from '../misc/types/User';
@@ -41,12 +41,12 @@ export const googleStrategy = new GoogleTokenStrartegy({
     const plainPasswordForGoogleLogin = `${googleInfo.given_name}_${googleInfo.family_name}`;
     const passwordForGoogleLogin: string = await AuthUtil.getHashedAuth(plainPasswordForGoogleLogin);
     
-    const userInfo: UserDocument = new User({
-      firstName: googleInfo.given_name,
-      lastName: googleInfo.family_name,
+    const userInfo: UserDocument = new UserModel({
+      firstname: googleInfo.given_name,
+      lastname: googleInfo.family_name,
       email: googleInfo.email,
       password: passwordForGoogleLogin,
-      userName: googleInfo.name,
+      username: googleInfo.name,
       role: UserRole.Customer,
       avatar: googleInfo.picture,
       address: 'Please update address!' // Need to be updated
