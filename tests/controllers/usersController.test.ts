@@ -3,13 +3,9 @@ import request from 'supertest';
 import connect, { MongoHelper } from '../db-helper';
 import app from '../../src/app';
 import { createUser, createUserAndLoginAndGetAccessToken, customerAuth, login, userInfo } from '../utils/testUtil';
-import { LoggedUserInfo, User, UserRole } from '../../src/misc/types/User';
-import { JwtTokens } from '../../src/misc/types/JwtPayload';
-import exp from 'constants';
+import { User, UserRole } from '../../src/misc/types/User';
 
-// tear down
 describe('user controller test', () => {
-  // connect db
   let mongoHelper: MongoHelper;
 
   beforeAll(async () => {
@@ -69,7 +65,7 @@ describe('user controller test', () => {
   });
 
   it('should return error when same email check', async () => {
-    const newUser = await createUser();   
+    await createUser();   
     const { email } = customerAuth;
 
     const response = await request(app)

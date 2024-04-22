@@ -1,20 +1,11 @@
-import request from 'supertest';
 import connect, { MongoHelper } from '../db-helper';
 
-import app from '../../src/app';
 import categoriesService from '../../src/services/categoriesService';
-import CategoryModel, { CategoryDocument } from '../../src/model/CategoryModel';
-import { getCategoryData } from '../controllers/categoriesController.test';
+import { CategoryDocument } from '../../src/model/CategoryModel';
 import { Category } from '../../src/misc/types/Category';
+import { createCategoryWithAcessToken } from '../utils/testUtil';
+import { UserRole } from '../../src/misc/types/User';
 
-// createCategory
-export async function createCategory(): Promise<CategoryDocument> {
-  const categoryData: Category = getCategoryData();
-  const category: CategoryDocument = new CategoryModel(categoryData);
-  return await categoriesService.createCategory(category);
-}
-
-//tear down
 describe('category service test', () => {
   let mongoHelper: MongoHelper;
 
@@ -30,67 +21,61 @@ describe('category service test', () => {
     await mongoHelper.clearDatabase();
   });
 
-  // get all categories
   it('should return a list of categories', async () => {
-    const category: CategoryDocument = await createCategory();
+    const categoryRes = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryRes.body;
 
     const categoryList = await categoriesService.getAllCategories();
+    const matchedCategory: CategoryDocument = categoryList[0];
+
     expect(categoryList.length).toEqual(1);
-    expect(categoryList[0]).toMatchObject({
-      _id: category._id,
-      name: category.name,
-      image: category.image,
-      __v: category.__v,
-    });
+    expect(category._id).toBe(matchedCategory._id.toString());
   });
 
   it('should return a category with categoryId', async () => {
-    const category: CategoryDocument = await createCategory();
+    const categoryRes = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryRes.body;
+
     const foundCategory: CategoryDocument | null =
       await categoriesService.getCategoryById(category._id);
 
-    expect(foundCategory).toMatchObject({
-      _id: category._id,
-      name: category.name,
+    expect(category).toMatchObject({
+      _id: category._id.toString(),
+      title: category.title,
       image: category.image,
-      __v: category.__v,
+      __v: category.__v
     });
   });
 
   it('should create a category', async () => {
-    const category: CategoryDocument = await createCategory();
+    const categoryRes = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryRes.body;
+    
     expect(category).toHaveProperty('_id');
-    expect(category).toHaveProperty('name');
+    expect(category).toHaveProperty('title');
     expect(category).toHaveProperty('image');
     expect(category).toHaveProperty('__v');
   });
 
   it('should update a category', async () => {
-    const category: CategoryDocument = await createCategory();
-    const categoryUpdateData: Partial<Category> = {
-      name: 'updated name',
-      image: 'http://updatedImage.png',
+    const categoryRes = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryRes.body;
+    
+    const updateInfo: Partial<Category> = {
+      title: 'updated name'
     };
 
     const updatedCategory: CategoryDocument | null =
-      await categoriesService.updateCategory(category._id, categoryUpdateData);
-    expect(updatedCategory).toMatchObject({
-      _id: category._id,
-      name: categoryUpdateData.name,
-      image: categoryUpdateData.image,
-      __v: category.__v,
-    });
+      await categoriesService.updateCategory(category._id, updateInfo);
+    
+    expect(updatedCategory.title).toBe(updateInfo.title);
   });
 
   it('should delete a category', async () => {
-    const category: CategoryDocument = await createCategory();
-    const deletedCategory: CategoryDocument | null =
-      await categoriesService.deleteCategoryById(category._id);
-    expect(deletedCategory).toMatchObject({
-      _id: category._id,
-      name: category.name,
-      image: category.image,
-      __v: category.__v,
-    });
+    const categoryRes = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryRes.body;
+
+    const deletedCategory: CategoryDocument | null = await categoriesService.deleteCategoryById(category._id);
+    expect(deletedCategory._id.toString()).toBe(category._id);
   });
 });

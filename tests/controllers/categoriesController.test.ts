@@ -5,32 +5,7 @@ import app from '../../src/app';
 import { CategoryDocument } from '../../src/model/CategoryModel';
 import { UserRole } from '../../src/misc/types/User';
 import { Category } from '../../src/misc/types/Category';
-import { createUser, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
-
-export function getCategoryData(title: string = 'category1'): Category {
-  return {
-    title: title,
-    image: `http://${title}_image.png`,
-  };
-}
-
-export async function createCategory(accessToken: string) {
-  const categoryData: Category = getCategoryData();
-  const response = await request(app)
-    .post('/api/v1/categories')
-    .set('Authorization', 'Bearer ' + accessToken)
-    .send(categoryData);
-
-  return response;
-}
-
-export async function createCategoryWithAcessToken(role: UserRole = UserRole.Customer) {
-  const accessToken: string = await createUserAndLoginAndGetAccessToken(
-    role
-  );
-
-  return createCategory(accessToken);
-}
+import { createCategory, createCategoryWithAcessToken, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
 
 describe('category controller test', () => {
   let mongoHelper: MongoHelper;
