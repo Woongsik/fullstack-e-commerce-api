@@ -90,10 +90,11 @@ describe('user controller test', () => {
     const adminInfo: Partial<User> = getUserData(UserRole.Admin);
     const adminUser: UserDocument = new UserModel(adminInfo);
 
-    // // Check with registered user 
+    // Check with registered user 
     const existedUser: UserDocument = await usersService.findOrCreateUser(user, '');
     expect(existedUser.email).toBe(user.email);
 
+    // Check with newly created user
     const expectedNewUser: UserDocument = await usersService.findOrCreateUser(adminUser, '');
     expect(expectedNewUser.email).toBe(adminUser.email);
   });

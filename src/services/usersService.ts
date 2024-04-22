@@ -7,7 +7,7 @@ const options = {
 }
 
 const getAllUsers = async (): Promise<UserDocument[]> => {
-  const users: UserDocument[] = await User.find({}, options);
+  const users: UserDocument[] = await User.find({});
 
   if (users && users.length > 0) {
     return users;
@@ -17,7 +17,7 @@ const getAllUsers = async (): Promise<UserDocument[]> => {
 };
 
 const getUserById = async (userId: string): Promise<UserDocument> => {
-  const user: UserDocument | null = await User.findById(userId, options);
+  const user: UserDocument | null = await User.findById(userId);
   if (user) {
     return user;
   }
@@ -26,7 +26,7 @@ const getUserById = async (userId: string): Promise<UserDocument> => {
 };
 
 const getUserByEmail = async (email: string): Promise<UserDocument> => {
-  const user: UserDocument | null = await User.findOne({ email }, options);
+  const user: UserDocument | null = await User.findOne({ email });
   if (user) {
     return user;
   }
@@ -63,7 +63,7 @@ const updateUser = async (userId: string, updateInfo: Partial<UserDocument>): Pr
 };
 
 const deleteUser = async (userId: string): Promise<UserDocument> => {
-  const deletedUser: UserDocument | null = await User.findByIdAndDelete(userId, options);
+  const deletedUser: UserDocument | null = await User.findByIdAndDelete(userId);
   if (deletedUser) {
     return deletedUser;
   }
@@ -72,7 +72,7 @@ const deleteUser = async (userId: string): Promise<UserDocument> => {
 };
 
 const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument> => {
-  const existedUser: UserDocument | null = await User.findOne({ email: user.email }, options);
+  const existedUser: UserDocument | null = await User.findOne({ email: user.email });
   if (existedUser) {
     return existedUser;
   }
