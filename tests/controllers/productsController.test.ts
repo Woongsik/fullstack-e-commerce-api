@@ -2,31 +2,26 @@ import request from 'supertest';
 
 import connect, { MongoHelper } from '../db-helper';
 import app from '../../src/app';
-import { Product } from '../../src/misc/types/Product';
+import { Product, ProductsList } from '../../src/misc/types/Product';
 import { createUser, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
 import { UserRole } from '../../src/misc/types/User';
 import { ProductDocument } from '../../src/model/ProductModel';
 import { createCategory } from './categoriesController.test';
+import { Size } from '../../src/misc/types/Size';
 
-export const productData: Partial<Product> = {
-  name: 'product1',
-  description: 'product1 available',
-  price: 10,
-  images: ['product1 image1', 'product1 image2'],
-};
-
-export function getProductData(data: Partial<Product>, categoryId: string) {
+export function getProductData(categoryId: string) {
   return {
-    name: data.name,
-    description: data.description,
-    price: data.price,
-    images: data.images,
-    category: categoryId,
+    title: 'product1',
+    sizes: [Size.Medium, Size.Large],
+    price: 35,
+    description: 'Product1 description',
+    images: ['http://product1_image1.png', 'http://product1_image2.png'],
+    category: categoryId, // backend ref
   };
 }
 
 async function createProduct(accessToken: string, categoryId: string) {
-  const productNewData = getProductData(productData, categoryId);
+  const productNewData = getProductData(categoryId);
   const response = await request(app)
     .post('/api/v1/products')
     .set('Authorization', 'Bearer ' + accessToken)
@@ -35,162 +30,126 @@ async function createProduct(accessToken: string, categoryId: string) {
   return response;
 }
 
+async function createProductAndCategoryWithAuth(role: UserRole = UserRole.Customer) {
+  const accessToken: string = await createUserAndLoginAndGetAccessToken(
+    role
+  );
+
+  const categoryData = await createCategory(accessToken);
+  return await createProduct(accessToken, categoryData.body._id);
+}
+
 describe('product controller test', () => {
   let mongoHelper: MongoHelper;
 
-  //connect to database
   beforeAll(async () => {
     mongoHelper = await connect();
   });
 
-  // close database
   afterAll(async () => {
     await mongoHelper.closeDatabase();
   });
 
-  // clear database after each test
   afterEach(async () => {
     await mongoHelper.clearDatabase();
   });
 
-  // test suites
-
   it('should get all the products', async () => {
+    // Check init
+    const initResponse = await request(app).get('/api/v1/products');
+    expect(initResponse.status).toBe(404);
+
+    // Creat a product
+    await createProductAndCategoryWithAuth(UserRole.Admin);
+    
+    // Request all products
     const response = await request(app).get('/api/v1/products');
+
+    const productList: ProductsList = response.body;
+    expect(productList).toHaveProperty('products');
+    expect(productList).toHaveProperty('total');
+    expect(productList).toHaveProperty('minMaxPrice');
+
+    expect(productList.products.length).toBe(1);
+    expect(productList.total).toBe(1);
+    expect(productList.minMaxPrice).toEqual({
+      min: expect.any(Number),
+      max: expect.any(Number)
+    });
+  });
+
+  it('should get a product by product id', async () => {
+   // Creat a product
+    const productRes = await createProductAndCategoryWithAuth(UserRole.Admin);
+    const newProduct: ProductDocument = productRes.body;
+
+    // Request all products
+    const response = await request(app).get(`/api/v1/products/${newProduct._id}`);
+    const product: ProductDocument = response.body;
+
     expect(response.status).toBe(200);
-    expect(response.body.total).toEqual(0);
+    expect(newProduct).toEqual(product);
   });
 
   it('should create a product if user is admin', async () => {
-    // create user, login user and get access token
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
+    const response = await createProductAndCategoryWithAuth(UserRole.Admin);
+    const newProduct: ProductDocument = response.body;
 
-    // create category
-    const categoryData = await createCategory(accessToken);
+    expect(response.status).toBe(201);
+    expect(newProduct).toHaveProperty('title');
 
-    // pass access token to create a product
-    const productResponse = await createProduct(
-      accessToken,
-      categoryData.body._id
-    );
-
-    expect(productResponse.status).toBe(201);
-    expect(productResponse.body).toMatchObject({
-      name: productResponse.body.name,
-      description: productResponse.body.description,
-      _id: expect.any(String),
-      __v: expect.any(Number),
-    });
+    const expectedProduct = getProductData('mockCategoryId');
+    expect(newProduct.title).toBe(expectedProduct.title);
   });
 
   it('should not create a product if user is customer', async () => {
-    // create user, login user and get access token
-    // First user is always admin
-    // Create second user
-    await createUser(UserRole.Admin, { email: 'admin@mail.com'});
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Customer
-    );
-
-    // create category
-    const categoryData = await createCategory(accessToken);
-
-    // pass access token to create a product
-    const productResponse = await createProduct(
-      accessToken,
-      categoryData.body._id
-    );
-    expect(productResponse.status).toBe(403);
-  });
-
-  it('should get a single product detail by id', async () => {
-    // create user, login user and get access token
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-
-    // create category
-    const categoryData = await createCategory(accessToken);
-
-    // pass access token to create a product
-    const productResponse = await createProduct(
-      accessToken,
-      categoryData.body._id
-    );
-
-    const product: ProductDocument = productResponse.body;
-
-    const singleProductData = await request(app).get(
-      `/api/v1/products/${product._id}`
-    );
-
-    expect(singleProductData.status).toBe(200);
-    expect(singleProductData.body).toHaveProperty('name', product.name);
-    expect(singleProductData.body).toHaveProperty(
-      'description',
-      product.description
-    );
+    const response = await createProductAndCategoryWithAuth(UserRole.Customer);
+    expect(response.status).toBe(403);
   });
 
   it('should update a product if user is admin', async () => {
-    // create user, login user and get access token
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-
-    // create category
+    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
     const categoryData = await createCategory(accessToken);
-
-    // pass access token to create a product
-    const productResponse = await createProduct(
+    const productRes = await createProduct(
       accessToken,
       categoryData.body._id
     );
+    const product: ProductDocument = productRes.body;
 
-    const productResponseData: ProductDocument = productResponse.body;
-
-    const productUpdateData: Partial<ProductDocument> = {
-      name: 'Product1 new name',
-      price: 50,
+    const updateInfo: Partial<Product> = {
+      title: 'Updated product',
+      price: 50
     };
 
-    const productUpdateResponse = await request(app)
-      .put(`/api/v1/products/${productResponseData._id}`)
+    const updatedProductRes = await request(app)
+      .put(`/api/v1/products/${product._id}`)
       .set('Authorization', 'Bearer ' + accessToken)
-      .send(productUpdateData);
+      .send(updateInfo);
 
-    expect(productUpdateResponse.status).toBe(200);
-    expect(productUpdateResponse.body).toMatchObject({
-      name: productUpdateData.name,
-      price: productUpdateData.price,
-      _id: productResponseData._id,
-      __v: productResponseData.__v,
+    const updatedProduct: ProductDocument = updatedProductRes.body;
+
+    expect(updatedProductRes.status).toBe(200);
+    expect(updatedProduct).toEqual({
+      ...product,
+      title: updateInfo.title,
+      price: updateInfo.price
     });
+
   });
 
   it('should delete a product if user is admin', async () => {
-    // create user, login user and get access token
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-
-    // create category
+    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
     const categoryData = await createCategory(accessToken);
-
-    // pass access token to create a product
-    const productResponse = await createProduct(
+    const productRes = await createProduct(
       accessToken,
       categoryData.body._id
     );
+    const product: ProductDocument = productRes.body;
 
-    const productResponseData: ProductDocument = productResponse.body;
-
-    const productDeleteResponse = await request(app)
-      .delete(`/api/v1/products/${productResponseData._id}`)
+    const deletedProductRes = await request(app)
+      .delete(`/api/v1/products/${product._id}`)
       .set('Authorization', 'Bearer ' + accessToken);
 
-    expect(productDeleteResponse.status).toBe(204);
+    expect(deletedProductRes.status).toBe(204);
   });
 });
