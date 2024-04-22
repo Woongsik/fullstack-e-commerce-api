@@ -4,6 +4,7 @@ import app from '../../src/app';
 import { User, UserAuth, UserRole } from '../../src/misc/types/User';
 import { JwtTokens } from '../../src/misc/types/JwtPayload';
 import { Category } from '../../src/misc/types/Category';
+import { Size } from '../../src/misc/types/Size';
 
 export const customerAuth: UserAuth = {
   email: 'user1@mail.com',
@@ -30,7 +31,9 @@ export async function createUser(role: UserRole = UserRole.Customer) {
     auth = adminAuth;
   }
 
-  return await request(app).post('/api/v1/users').send({ ...userInfo, ...auth });
+  return await request(app)
+    .post('/api/v1/users')
+    .send({ ...userInfo, ...auth });
 };
 
 export async function login(role: UserRole = UserRole.Customer) {
@@ -39,7 +42,9 @@ export async function login(role: UserRole = UserRole.Customer) {
     auth = adminAuth;
   }
 
-  return await request(app).post('/api/v1/users/login').send(auth);
+  return await request(app)
+    .post('/api/v1/users/login')
+    .send(auth);
 }
 
 export async function createUserAndLoginAndGetAccessToken(role: UserRole = UserRole.Customer): Promise<string> {
@@ -51,18 +56,8 @@ export async function createUserAndLoginAndGetAccessToken(role: UserRole = UserR
 }
 
 export async function createCategoryWithAcessToken(role: UserRole = UserRole.Customer) {
-  const accessToken: string = await createUserAndLoginAndGetAccessToken(
-    role
-  );
-
+  const accessToken: string = await createUserAndLoginAndGetAccessToken(role);
   return createCategory(accessToken);
-}
-
-export function getCategoryData(title: string = 'category1'): Category {
-  return {
-    title: title,
-    image: `http://${title}_image.png`,
-  };
 }
 
 export async function createCategory(accessToken: string) {
@@ -73,4 +68,39 @@ export async function createCategory(accessToken: string) {
     .send(categoryData);
 
   return response;
+}
+
+export function getCategoryData(title: string = 'category1'): Category {
+  return {
+    title: title,
+    image: `http://${title}_image.png`,
+  };
+}
+
+export function getProductData(categoryId: string) {
+  return {
+    title: 'product1',
+    sizes: [Size.Medium, Size.Large],
+    price: 35,
+    description: 'Product1 description',
+    images: ['http://product1_image1.png', 'http://product1_image2.png'],
+    category: categoryId, // backend ref
+  };
+}
+
+export async function createProduct(accessToken: string, categoryId: string) {
+  const productNewData = getProductData(categoryId);
+  const response = await request(app)
+    .post('/api/v1/products')
+    .set('Authorization', 'Bearer ' + accessToken)
+    .send(productNewData);
+
+  return response;
+}
+
+export async function createProductAndCategoryWithAuth(role: UserRole = UserRole.Customer) {
+  const accessToken: string = await createUserAndLoginAndGetAccessToken(role);
+
+  const categoryData = await createCategory(accessToken);
+  return await createProduct(accessToken, categoryData.body._id);
 }
