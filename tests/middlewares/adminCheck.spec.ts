@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { UserRole } from "../../src/misc/types/User";
 import adminCheck from "../../src/middlewares/adminCheck";
 import { UserDocument } from "../../src/model/UserModel";

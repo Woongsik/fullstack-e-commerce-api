@@ -7,10 +7,10 @@ import { UserRole } from '../../src/misc/types/User';
 import { Category } from '../../src/misc/types/Category';
 import { createUser, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
 
-export function getCategoryData(name: string = 'category1'): Category {
+export function getCategoryData(title: string = 'category1'): Category {
   return {
-    name: name,
-    image: `http://${name}_image.png`,
+    title: title,
+    image: `http://${title}_image.png`,
   };
 }
 
@@ -22,6 +22,14 @@ export async function createCategory(accessToken: string) {
     .send(categoryData);
 
   return response;
+}
+
+export async function createCategoryWithAcessToken(role: UserRole = UserRole.Customer) {
+  const accessToken: string = await createUserAndLoginAndGetAccessToken(
+    role
+  );
+
+  return createCategory(accessToken);
 }
 
 describe('category controller test', () => {
@@ -40,85 +48,67 @@ describe('category controller test', () => {
   });
 
   it('should return a list of categories', async () => {
-    const initResponse = await request(app).get('/api/v1/categories');
-    expect(initResponse.status).toBe(200);
-    expect(initResponse.body).toHaveLength(0);
+    const response = await request(app).get('/api/v1/categories');
+    expect(response.status).toBe(404);
   });
 
-  it('should return a category with categoryId', async () => {
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-    const createCategoryResponse = await createCategory(accessToken);
-    const category: CategoryDocument = createCategoryResponse.body;
+  it('should return a category with categoryId', async () => {    
+    const categoryResponse = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryResponse.body;
 
-    const response = await request(app).get(
-      `/api/v1/categories/${category._id}`
+    const response = await request(app)
+      .get(`/api/v1/categories/${category._id}`
     );
+    
     expect(response.status).toBe(200);
     expect(response.body).toEqual(category);
   });
 
   it('should create a category if user is an admin', async () => {
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-    const createCategoryResponse = await createCategory(accessToken);
+    const categoryResponse = await createCategoryWithAcessToken(UserRole.Admin);
+    const category: CategoryDocument = categoryResponse.body;
 
-    expect(createCategoryResponse.status).toBe(201);
-    expect(createCategoryResponse.body).toMatchObject({
-      name: createCategoryResponse.body.name,
-      image: createCategoryResponse.body.image,
+    expect(categoryResponse.status).toBe(201);
+    expect(category).toMatchObject({
+      title: category.title,
+      image: category.image,
       _id: expect.any(String),
-      __v: expect.any(Number),
+      __v: expect.any(Number)
     });
   });
 
   it('cannot create a category if user is a customer', async () => {
-    // First user is always admin
-    // Create second user
-    await createUser(UserRole.Admin, { email: 'admin@mail.com'});
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Customer
-    );
-
-
-    const createCategoryResponse = await createCategory(accessToken);
+    const createCategoryResponse = await createCategoryWithAcessToken(UserRole.Customer);
     expect(createCategoryResponse.status).toBe(403); // Fobidden
   });
 
   it('should update a category', async () => {
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-    const createCategoryResponse = await createCategory(accessToken);
-    const category: CategoryDocument = createCategoryResponse.body;
+    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
+    const categoryResponse = await createCategory(accessToken);
+    const category: CategoryDocument = categoryResponse.body;
 
-    const categoryUpdateData: Partial<Category> = {
-      name: 'updated name',
-      image: 'http://updatedImage.png',
+    const updateInfo: Partial<Category> = {
+      title: 'updated title'
     };
 
     const response = await request(app)
       .put(`/api/v1/categories/${category._id}`)
       .set('Authorization', 'Bearer ' + accessToken)
-      .send(categoryUpdateData);
+      .send(updateInfo);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
       _id: category._id,
       __v: category.__v,
-      name: categoryUpdateData.name,
-      image: categoryUpdateData.image,
+      title: updateInfo.title,
+      image: category.image
     });
   });
 
   it('should delete a category', async () => {
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(
-      UserRole.Admin
-    );
-    const createCategoryResponse = await createCategory(accessToken);
-    const category: CategoryDocument = createCategoryResponse.body;
+    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
+    const categoryResponse = await createCategory(accessToken);
+    const category: CategoryDocument = categoryResponse.body;
 
     const response = await request(app)
       .delete(`/api/v1/categories/${category._id}`)
