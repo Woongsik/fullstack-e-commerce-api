@@ -14,7 +14,7 @@ import UserModel, { UserDocument } from '../model/UserModel';
 import AuthUtil from '../misc/utils/AuthUtil';
 import { JwtTokens } from '../misc/types/JwtPayload';
 import { User, UserRole } from '../misc/types/User';
-import { getUserFromRequest } from './controllerUtil';
+import { getUserFromRequest } from './util/controllerUtil';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {

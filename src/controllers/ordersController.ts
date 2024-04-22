@@ -10,7 +10,7 @@ import OrderModel, { OrderDocument } from '../model/OrderModel';
 import ordersService from '../services/ordersService';
 import { Order } from '../misc/types/Order';
 import { UserDocument } from '../model/UserModel';
-import { getUserFromRequest } from './controllerUtil';
+import { getUserFromRequest } from './util/controllerUtil';
 
 const secretKey = 'sk_test_51P6SE2Jo0VhvXeMmlsDrG67UTAFU772Qmbo6WImJm61GIRRR3WJ3Z9InIGqU5tMEw7PB5yk8oXSqLNjsTrySlg7s005fzisE74';
 const stripe = require("stripe")(secretKey);

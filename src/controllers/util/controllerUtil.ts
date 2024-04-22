@@ -1,8 +1,8 @@
 import { Request } from 'express';
 
-import { ForbiddenError } from "../errors/ApiError";
-import { UserDocument } from "../model/UserModel";
-import { Size } from '../misc/types/Size';
+import { ForbiddenError } from "../../errors/ApiError";
+import { UserDocument } from "../../model/UserModel";
+import { Size } from '../../misc/types/Size';
 
 export const getUserFromRequest = (req: Request): UserDocument => {
   const user = req.user as UserDocument | undefined;

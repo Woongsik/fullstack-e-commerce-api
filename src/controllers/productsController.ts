@@ -9,7 +9,7 @@ import {
   InternalServerError
 } from '../errors/ApiError';
 import { FilterProduct, ProductsList } from '../misc/types/Product';
-import { sortSizes } from './controllerUtil';
+import { sortSizes } from './util/controllerUtil';
 
 export async function getAllProducts(req: Request, res: Response, next: NextFunction) {
   try {
