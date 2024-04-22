@@ -1,3 +1,5 @@
+import { JwtTokens } from "./JwtPayload";
+
 export enum UserRole {
   Customer = 'customer',
   Admin = 'admin'
@@ -8,12 +10,20 @@ export type UserActiveAndRole = {
   active: boolean
 }
 
-export type User = UserActiveAndRole & {
+export type UserAuth = {
+  email: string;
+  password: string;
+}
+
+export type User = UserActiveAndRole & UserAuth & {
   firstname: string;
   lastname: string;
   username: string;
   address: string;
   avatar: string;
-  email: string;
-  password: string;
 };
+
+export type LoggedUserInfo = {
+  tokens: JwtTokens,
+  user: User
+}

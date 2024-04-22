@@ -1,40 +1,49 @@
 import request from 'supertest';
 
 import app from '../../src/app';
-import { User, UserRole } from '../../src/misc/types/User';
+import { User, UserAuth, UserRole } from '../../src/misc/types/User';
 import { JwtTokens } from '../../src/misc/types/JwtPayload';
-import { UserDocument } from '../../src/model/UserModel';
-import { Order, OrderItem, OrderStatus } from '../../src/misc/types/Order';
-import { Product } from '../../src/misc/types/Product';
-import { Size } from '../../src/misc/types/Size';
-import { Category } from '../../src/misc/types/Category';
 
-const userAuth = {
+export const customerAuth: UserAuth = {
   email: 'user1@mail.com',
-  password: 'user1Password',
+  password: 'customer',
 };
 
-const user: Partial<User> = {
-  firstName: 'firstName',
-  lastName: 'lastName',
-  userName: 'userName',
+export const adminAuth: UserAuth = {
+  email: 'admin@mail.com',
+  password: 'adminPassword',
+};
+
+export const userInfo: Partial<User> = {
+  firstname: 'firstname',
+  lastname: 'lastname',
+  username: 'username',
   avatar: 'http://avatar.png',
   address: 'address',
-  active: true,
-  ...userAuth
+  active: true
 };
 
-export async function createUser(role: UserRole = UserRole.Customer, customerUser: Partial<User> | null = null) {
-  return await request(app).post('/api/v1/users').send({ ...user, ...customerUser, role });
+export async function createUser(role: UserRole = UserRole.Customer) {
+  let auth: UserAuth = customerAuth; 
+  if (role === UserRole.Admin) {
+    auth = adminAuth;
+  }
+
+  return await request(app).post('/api/v1/users').send({ ...userInfo, ...auth });
 };
 
-export async function login() {
-  return await request(app).post('/api/v1/users/login').send(userAuth);
+export async function login(role: UserRole = UserRole.Customer) {
+  let auth: UserAuth = customerAuth; 
+  if (role === UserRole.Admin) {
+    auth = adminAuth;
+  }
+
+  return await request(app).post('/api/v1/users/login').send(auth);
 }
 
 export async function createUserAndLoginAndGetAccessToken(role: UserRole = UserRole.Customer): Promise<string> {
   await createUser(role);
-  const loggedinInfo = await login();
+  const loggedinInfo = await login(role);
   const tokens: JwtTokens = loggedinInfo.body.tokens;
 
   return tokens.accessToken;
