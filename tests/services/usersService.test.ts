@@ -2,8 +2,11 @@ import request from 'supertest';
 
 import connect, { MongoHelper } from '../db-helper';
 import usersService from '../../src/services/usersService';
-import { createUser } from '../utils/testUtil';
-import { UserRole } from '../../src/misc/types/User';
+import { User, UserRole } from '../../src/misc/types/User';
+import { createUserInService } from '../utils/serviceUtil';
+import UserModel, { UserDocument } from '../../src/model/UserModel';
+import { getUserData } from '../utils/controllerUtil';
+import { PasswordUpdte } from '../../src/misc/types/Password';
 
 // tear down
 describe('user controller test', () => {
@@ -22,76 +25,89 @@ describe('user controller test', () => {
     await mongoHelper.clearDatabase();
   });
 
-  //test suit
-  // create user
+  it('should get a list of users', async () => {
+    const admin: UserDocument = await createUserInService(UserRole.Admin);
+    const customer: UserDocument = await createUserInService(UserRole.Customer);
+
+    const users: UserDocument[] = await usersService.getAllUsers();
+    expect(users.length).toEqual(2);
+    expect(users[0]._id).toEqual(admin._id);
+    expect(users[1]._id).toEqual(customer._id);
+  });
+
+  it('should get a user by user id', async () => {
+    const customer: UserDocument = await createUserInService(UserRole.Customer);
+    const foundUser: UserDocument = await usersService.getUserById(customer._id);
+
+    expect(foundUser._id).toEqual(customer._id);
+  });
+
+  it('should get a user by email', async () => {
+    const customer: UserDocument = await createUserInService(UserRole.Customer);
+    const foundUser: UserDocument = await usersService.getUserByEmail(customer.email);
+    
+    expect(foundUser._id).toEqual(customer._id);
+    expect(foundUser.email).toEqual(customer.email);
+  });
+
   it('should create a user', async () => {
-    const response = await createUser();
-    expect(response.body).toHaveProperty('_id');
-    expect(response.body).toHaveProperty('role');
-    expect(response.body).toHaveProperty('firstName');
-  });
+    const user: UserDocument = await createUserInService(UserRole.Customer);
 
-  // get all users
-  it('should return list of users', async () => {
-    await createUser();
-    const userList = await usersService.getAllUsers();
-    expect(userList.length).toEqual(1);
-  });
-
-  // get userby Id
-  it('should return user By id', async () => {
-    const newUser = await createUser();
-    console.log('created user', newUser.body);
-    const user = await usersService.getUserById(newUser.body._id);
-    if (user) {
-      expect(user).toHaveProperty('email');
-      expect(user.email).toEqual('user1@mail.com');
-      expect(user).toHaveProperty('_id');
-    }
-  });
-
-  // get user by email
-  it('should return user by email', async () => {
-    const newUser = await createUser();
-    const user = await usersService.getUserByEmail(newUser.body.email);
-    if (user) {
-      expect(user).toHaveProperty('email');
-      expect(user.email).toEqual('user1@mail.com');
-      expect(user).toHaveProperty('_id');
-    }
-  });
-
-  // deleteUser
-  it('should return list of users', async () => {
-    const newUser = await createUser();
-    const user = await usersService.deleteUser(newUser.body._id);
-    // console.log('delete user', user);
+    expect(user).toHaveProperty('_id');
+    expect(user).toHaveProperty('firstname');
+    expect(user).toHaveProperty('lastname');
+    expect(user).toHaveProperty('username');
+    expect(user).toHaveProperty('address');
+    expect(user).toHaveProperty('avatar');
     expect(user).toHaveProperty('email');
-    expect(user?.email).toEqual('user1@mail.com');
-    expect(user).toHaveProperty('_id');
+    expect(user).toHaveProperty('password');
+    expect(user).toHaveProperty('role');
+    expect(user).toHaveProperty('active');
   });
 
-  // update user
   it('should update user', async () => {
-    const newUser = await createUser();
-    const user = await usersService.getUserByEmail(newUser.body.email);
-    console.log('update user', user);
-    expect(user).toHaveProperty('firstName');
-    expect(user?.firstName).toEqual('firstName');
-    expect(user?.email).toEqual('user1@mail.com');
-    expect(user).toHaveProperty('_id');
+    const user: UserDocument = await createUserInService(UserRole.Customer);
+
+    const updateInfo: Partial<User> = {
+      username: 'Updated name'
+    }
+
+    const updatedUser: UserDocument = await usersService.updateUser(user._id, updateInfo);
+
+    expect(updatedUser._id).toEqual(user._id);
+    expect(updatedUser.username).toBe(updateInfo.username);
   });
 
-  // find or create user
+  it('should delete a user by user id', async () => {
+    const user: UserDocument = await createUserInService(UserRole.Customer);
+    const deletedUser: UserDocument = await usersService.deleteUser(user._id);
+    
+    expect(deletedUser._id).toEqual(user._id);
+  });
+
   it('should create a new user if not found', async () => {
-    const plainPassword = '1234'
-    const newUser = await createUser(UserRole.Admin, { password: plainPassword });
-    const findUser = await usersService.findOrCreateUser(newUser.body, plainPassword);
-    console.log('find user', findUser);
-    console.log('update user', findUser);
-    expect(findUser).toHaveProperty('firstName');
-    expect(findUser?.firstName).toEqual('firstName');
-    expect(findUser?.email).toEqual('user1@mail.com');
-    expect(findUser).toHaveProperty('_id');
+    const user: UserDocument = await createUserInService(UserRole.Customer);
+    const adminInfo: Partial<User> = getUserData(UserRole.Admin);
+    const adminUser: UserDocument = new UserModel(adminInfo);
+
+    // // Check with registered user 
+    const existedUser: UserDocument = await usersService.findOrCreateUser(user, '');
+    expect(existedUser.email).toBe(user.email);
+
+    const expectedNewUser: UserDocument = await usersService.findOrCreateUser(adminUser, '');
+    expect(expectedNewUser.email).toBe(adminUser.email);
+  });
+
+  it('should update user password', async () => {
+    const user: UserDocument = await createUserInService(UserRole.Customer);
+    const passwordInfo: PasswordUpdte = {
+      oldPassword: user.password,
+      newPassword: 'updatedPassword'
+    };
+
+    user.password = passwordInfo.newPassword;
+    const updatedUser: UserDocument = await usersService.updatePassword(user);
+
+    expect(user.password).toBe(updatedUser.password);
   });
 });

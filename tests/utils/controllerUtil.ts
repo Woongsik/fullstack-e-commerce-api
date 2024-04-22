@@ -26,15 +26,21 @@ export const userInfo: Partial<User> = {
   active: true
 };
 
-export async function createUser(role: UserRole = UserRole.Customer) {
+export const getUserData = (role: UserRole = UserRole.Customer): Partial<User> => {
   let auth: UserAuth = customerAuth; 
   if (role === UserRole.Admin) {
     auth = adminAuth;
   }
 
+  return { ...userInfo, ...auth }
+}
+
+export async function createUser(role: UserRole = UserRole.Customer) {
+  const userInfo: Partial<User> = getUserData(role);
+
   return await request(app)
     .post('/api/v1/users')
-    .send({ ...userInfo, ...auth });
+    .send(userInfo);
 };
 
 export async function login(role: UserRole = UserRole.Customer) {

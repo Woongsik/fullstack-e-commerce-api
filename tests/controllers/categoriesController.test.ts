@@ -5,7 +5,7 @@ import app from '../../src/app';
 import { CategoryDocument } from '../../src/model/CategoryModel';
 import { UserRole } from '../../src/misc/types/User';
 import { Category } from '../../src/misc/types/Category';
-import { createCategory, createCategoryWithAcessToken, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
+import { createCategory, createCategoryWithAcessToken, createUserAndLoginAndGetAccessToken } from '../utils/controllerUtil';
 
 describe('category controller test', () => {
   let mongoHelper: MongoHelper;

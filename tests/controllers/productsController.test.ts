@@ -3,41 +3,9 @@ import request from 'supertest';
 import connect, { MongoHelper } from '../db-helper';
 import app from '../../src/app';
 import { Product, ProductsList } from '../../src/misc/types/Product';
-import { createUser, createUserAndLoginAndGetAccessToken } from '../utils/testUtil';
+import { createCategory, createUserAndLoginAndGetAccessToken, createProductAndCategoryWithAuth, getProductData, createProduct } from '../utils/controllerUtil';
 import { UserRole } from '../../src/misc/types/User';
 import { ProductDocument } from '../../src/model/ProductModel';
-import { createCategory } from './categoriesController.test';
-import { Size } from '../../src/misc/types/Size';
-
-export function getProductData(categoryId: string) {
-  return {
-    title: 'product1',
-    sizes: [Size.Medium, Size.Large],
-    price: 35,
-    description: 'Product1 description',
-    images: ['http://product1_image1.png', 'http://product1_image2.png'],
-    category: categoryId, // backend ref
-  };
-}
-
-async function createProduct(accessToken: string, categoryId: string) {
-  const productNewData = getProductData(categoryId);
-  const response = await request(app)
-    .post('/api/v1/products')
-    .set('Authorization', 'Bearer ' + accessToken)
-    .send(productNewData);
-
-  return response;
-}
-
-async function createProductAndCategoryWithAuth(role: UserRole = UserRole.Customer) {
-  const accessToken: string = await createUserAndLoginAndGetAccessToken(
-    role
-  );
-
-  const categoryData = await createCategory(accessToken);
-  return await createProduct(accessToken, categoryData.body._id);
-}
 
 describe('product controller test', () => {
   let mongoHelper: MongoHelper;

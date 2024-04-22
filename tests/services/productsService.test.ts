@@ -8,9 +8,6 @@ import {
 } from '../../src/misc/types/Product';
 import { Size } from '../../src/misc/types/Size';
 import { createProductInService } from '../utils/serviceUtil';
-import exp from 'constants';
-
-
 
 const filterProducts: Partial<FilterProduct> = {
   title: 'Product1',
@@ -70,7 +67,7 @@ describe('Product service test', () => {
       product._id
     );
 
-    expect(foundProduct._id.toString()).toBe(product._id.toString());
+    expect(foundProduct._id).toEqual(product._id);
   });
 
   // update product by id
@@ -86,7 +83,7 @@ describe('Product service test', () => {
       product._id,
       updateInfo
     );
-    expect(updatedProduct._id.toString()).toBe(product._id.toString());
+    expect(updatedProduct._id).toEqual(product._id);
     expect(updatedProduct.title).toBe(updateInfo.title);
     expect(updatedProduct.description).toBe(updateInfo.description);
   });
@@ -96,6 +93,6 @@ describe('Product service test', () => {
     const product: ProductDocument = await createProductInService();
     const deleteProduct = await productsService.deleteProductById(product._id);
 
-    expect(deleteProduct._id.toString()).toBe(product._id.toString());
+    expect(deleteProduct._id).toEqual(product._id);
   });
 });

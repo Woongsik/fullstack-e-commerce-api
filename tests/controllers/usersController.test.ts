@@ -2,7 +2,7 @@ import request from 'supertest';
 
 import connect, { MongoHelper } from '../db-helper';
 import app from '../../src/app';
-import { createUser, createUserAndLoginAndGetAccessToken, customerAuth, login, userInfo } from '../utils/testUtil';
+import { createUser, createUserAndLoginAndGetAccessToken, customerAuth, login, userInfo } from '../utils/controllerUtil';
 import { User, UserRole } from '../../src/misc/types/User';
 
 describe('user controller test', () => {
