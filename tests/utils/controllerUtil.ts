@@ -5,6 +5,7 @@ import { User, UserAuth, UserRole } from '../../src/misc/types/User';
 import { JwtTokens } from '../../src/misc/types/JwtPayload';
 import { Category } from '../../src/misc/types/Category';
 import { Size } from '../../src/misc/types/Size';
+import { Product } from '../../src/misc/types/Product';
 
 export const customerAuth: UserAuth = {
   email: 'user1@mail.com',
@@ -77,14 +78,15 @@ export function getCategoryData(title: string = 'category1'): Category {
   };
 }
 
-export function getProductData(categoryId: string) {
+export function getProductData(categoryId: string): Partial<Product> {
   return {
     title: 'product1',
     sizes: [Size.Medium, Size.Large],
     price: 35,
     description: 'Product1 description',
     images: ['http://product1_image1.png', 'http://product1_image2.png'],
-    category: categoryId, // backend ref
+    category: categoryId, // backend category id ref
+    // createdAt: Date ==> is missing here since backend generates
   };
 }
 

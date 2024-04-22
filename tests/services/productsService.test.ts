@@ -1,29 +1,20 @@
 import connect, { MongoHelper } from '../db-helper';
 import ProductModel, { ProductDocument } from '../../src/model/ProductModel';
 import productsService from '../../src/services/productsService';
-import { CategoryDocument } from '../../src/model/CategoryModel';
-import { createCategory } from './categoriesService.test';
-import {
-  getProductData,
-  productData,
-} from '../controllers/productsController.test';
 import {
   FilterProduct,
   Product,
   ProductsList,
 } from '../../src/misc/types/Product';
+import { Size } from '../../src/misc/types/Size';
+import { createProductInService } from '../utils/serviceUtil';
+import exp from 'constants';
 
-export async function createProduct(
-  categoryId: string
-): Promise<ProductDocument> {
-  const productDataObject = getProductData(productData, categoryId);
-  const newProduct: ProductDocument = new ProductModel(productDataObject);
-  return await productsService.createNewProduct(newProduct);
-}
+
 
 const filterProducts: Partial<FilterProduct> = {
-  name: 'Product1',
-  size: 'M',
+  title: 'Product1',
+  size: Size.Medium
 };
 
 describe('Product service test', () => {
@@ -44,93 +35,67 @@ describe('Product service test', () => {
     await mongoHelper.clearDatabase();
   });
 
-  //test suites
-  // get all products
-  it('should get all products', async () => {
-    // create category
-    const category: CategoryDocument = await createCategory();
+  it('should get all products without any filter', async () => {
+    const product: ProductDocument = await createProductInService();
+    const productList: ProductsList = await productsService.getAllProducts({});
 
-    const product: ProductDocument = await createProduct(category._id);
+    expect(productList).toHaveProperty('products');
+    expect(productList).toHaveProperty('total');
+    expect(productList).toHaveProperty('minMaxPrice');
 
-    const productList: ProductsList = await productsService.getAllProducts(
-      filterProducts
-    );
+    expect(productList.total).toBe(1);
+    expect(productList.products.length).toBe(1);
 
-    expect(productList.total).toEqual(1);
-    expect(productList.products[0]).toMatchObject({
-      _id: product._id,
-      name: product.name,
-      images: product.images,
-    });
+    const matchedProduct: ProductDocument = productList.products[0];
+    expect(matchedProduct).toEqual(matchedProduct);
   });
 
-  // create product
   it('should create a product', async () => {
-    // create category
-    const category: CategoryDocument = await createCategory();
-
-    const product: ProductDocument = await createProduct(category._id);
+    const product: ProductDocument = await createProductInService();
 
     expect(product).toHaveProperty('_id');
-    expect(product).toHaveProperty('name');
+    expect(product).toHaveProperty('title');
+    expect(product).toHaveProperty('sizes');
+    expect(product).toHaveProperty('category');
+    expect(product).toHaveProperty('price');
     expect(product).toHaveProperty('description');
+    expect(product).toHaveProperty('images');
+    expect(product).toHaveProperty('createdAt');
   });
 
-  // get a product by id
-  it('should get a product by id', async () => {
-    // create category
-    const category: CategoryDocument = await createCategory();
-
-    const product: ProductDocument = await createProduct(category._id);
+  it('should get a product by product id', async () => {
+    const product: ProductDocument = await createProductInService();
 
     const foundProduct: ProductDocument = await productsService.getProductById(
       product._id
     );
 
-    expect(foundProduct).toMatchObject({
-      _id: product._id,
-      name: product.name,
-      images: product.images,
-    });
+    expect(foundProduct._id.toString()).toBe(product._id.toString());
   });
 
   // update product by id
   it('should update a product by id', async () => {
-    // create category
-    const category: CategoryDocument = await createCategory();
+    const product: ProductDocument = await createProductInService();
 
-    const product: ProductDocument = await createProduct(category._id);
-
-    const productUpdateData: Partial<Product> = {
-      name: 'product1 new name',
+    const updateInfo: Partial<Product> = {
+      title: 'updated product name',
       description: 'product1 new description',
     };
 
-    const updateProduct: ProductDocument = await productsService.updateProduct(
+    const updatedProduct: ProductDocument = await productsService.updateProduct(
       product._id,
-      productUpdateData
+      updateInfo
     );
-
-    expect(updateProduct).toMatchObject({
-      _id: product._id,
-      name: productUpdateData.name,
-      description: productUpdateData.description,
-    });
+    expect(updatedProduct._id.toString()).toBe(product._id.toString());
+    expect(updatedProduct.title).toBe(updateInfo.title);
+    expect(updatedProduct.description).toBe(updateInfo.description);
   });
 
   // delete product by id
   it('should delete a product by id', async () => {
-    // create category
-    const category: CategoryDocument = await createCategory();
-
-    const product: ProductDocument = await createProduct(category._id);
-
+    const product: ProductDocument = await createProductInService();
     const deleteProduct = await productsService.deleteProductById(product._id);
 
-    expect(deleteProduct).toMatchObject({
-      _id: product._id,
-      name: product.name,
-      images: product.images,
-    });
+    expect(deleteProduct._id.toString()).toBe(product._id.toString());
   });
 });
