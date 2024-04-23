@@ -26,7 +26,7 @@ export const generateTokens = async (user: UserDocument): Promise<JwtTokens> => 
     },
     JWT_SECRET,
     {
-      expiresIn: '10d',
+      expiresIn: '3h',
     }
   );
 
@@ -38,7 +38,7 @@ export const generateTokens = async (user: UserDocument): Promise<JwtTokens> => 
     },
     JWT_SECRET,
     {
-      expiresIn: '20d',
+      expiresIn: '10d',
     }
   );
 
