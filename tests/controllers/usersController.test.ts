@@ -20,11 +20,13 @@ describe('user controller test', () => {
     await mongoHelper.clearDatabase();
   });
 
-  it('should return list of user', async () => {
-    await createUser(UserRole.Admin);
+  it('should return a list of users', async () => {
     await createUser(UserRole.Customer);
+    const accessToken = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
 
-    const response = await request(app).get('/api/v1/users');
+    const response = await request(app)
+      .get('/api/v1/users')
+      .set('Authorization', 'Bearer ' + accessToken);
 
     expect(response.status).toBe(200);
     expect(response.body.length).toEqual(2);
@@ -42,8 +44,13 @@ describe('user controller test', () => {
   });
 
   it('should return a user by user id', async () => {
-    const newUser = await createUser();    
-    const response = await request(app).get(`/api/v1/users/${newUser.body._id}`);
+    const newUser = await createUser(UserRole.Customer);   
+    const loginRes = await login(UserRole.Customer);
+    const accessToken = loginRes.body.tokens.accessToken;
+
+    const response = await request(app)
+      .get(`/api/v1/users/${newUser.body._id}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     expect(response.status).toBe(200);
     expect(response.body._id).toEqual(newUser.body._id);
@@ -70,17 +77,14 @@ describe('user controller test', () => {
 
     const response = await request(app)
       .post(`/api/v1/users/check-email`)
-      .send({
-        email
-      });
-
+      .send({ email });
 
     expect(response.status).toBe(400);
   });
 
   it('should return user info by login', async () => {
-    const newUser = await createUser();   
-    const response = await login(); 
+    const newUser = await createUser(UserRole.Customer);   
+    const response = await login(UserRole.Customer); 
         
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('tokens');
@@ -148,8 +152,8 @@ describe('user controller test', () => {
   });
 
   it('should delete user when user is an admin', async () => {
-    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
     const customer = await createUser(UserRole.Customer);
+    const accessToken: string = await createUserAndLoginAndGetAccessToken(UserRole.Admin);
 
     const response = await request(app)
       .delete(`/api/v1/users/${customer.body._id}`)
@@ -158,6 +162,4 @@ describe('user controller test', () => {
     expect(response.status).toBe(204);
     expect(response.body).toEqual({});
   });
-
-  
 });

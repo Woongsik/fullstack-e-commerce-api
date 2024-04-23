@@ -2,10 +2,6 @@ import { sendWelcomeEmail } from '../config/email';
 import { BadRequest, InternalServerError, NotFoundError } from '../errors/ApiError';
 import User, { UserDocument } from '../model/UserModel';
 
-const options = {
-  // password: 0
-}
-
 const getAllUsers = async (): Promise<UserDocument[]> => {
   const users: UserDocument[] = await User.find({});
 
@@ -43,7 +39,7 @@ const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: strin
   
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
-    // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
     return newUser;
   }
 

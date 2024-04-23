@@ -19,9 +19,9 @@ import adminCheck from '../middlewares/adminCheck';
 
 const router = express.Router();
 
-router.get('/', getAllUsers);
+router.get('/', passportAuthenticate(), adminCheck, getAllUsers);
 router.get('/session', passportAuthenticate(), getUserSession);
-router.get('/:userId', getUserById);
+router.get('/:userId', passportAuthenticate(), getUserById);
 
 router.post('/', createUser);
 router.post('/check-email', checkEmail);
