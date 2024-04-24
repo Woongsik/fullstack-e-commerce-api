@@ -1,5 +1,6 @@
-import { sendWelcomeEmail } from '../config/email';
+import { sendWelcomeEmail, sendForgetPasswordEmail } from '../config/email';
 import { BadRequest, InternalServerError, NotFoundError } from '../errors/ApiError';
+import AuthUtil from '../misc/utils/AuthUtil';
 import User, { UserDocument } from '../model/UserModel';
 
 const getAllUsers = async (): Promise<UserDocument[]> => {
@@ -39,7 +40,10 @@ const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: strin
   
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
-    // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    if (plainPasswordForGoogleLogin) {
+      await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    }
+    
     return newUser;
   }
 
@@ -77,9 +81,13 @@ const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin:
 }
 
 const updatePassword = async (user: UserDocument): Promise<UserDocument> => {
+  const plainPasswordToReset: string = `temp&${user.firstname}&1347`;
+  const hashedPassword: string = await AuthUtil.getHashedAuth(plainPasswordToReset);
+  user.password = hashedPassword;
+  
   const updatedUser: UserDocument | null = await user.save();
-
   if (updatedUser) {
+    await sendForgetPasswordEmail(user, plainPasswordToReset);
     return updatedUser;
   }
 

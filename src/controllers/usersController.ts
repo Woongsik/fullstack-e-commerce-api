@@ -195,11 +195,6 @@ export const forgetPassword = async (req: Request, res: Response, next: NextFunc
       resetPasswordInfo.userEmail
     );
 
-    // TODO send email one time password to reset password
-    const plainPasswordToReset: string = `tempPasswordToReset_${user.firstname}`;
-    const hashedPassword: string = await AuthUtil.getHashedAuth(plainPasswordToReset);
-    user.password = hashedPassword;
-    console.log('Temp passowrd:', plainPasswordToReset);
     const updatedUser: UserDocument = await usersService.updatePassword(user);
   
     return res.status(200).json(updatedUser);
