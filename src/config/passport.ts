@@ -38,7 +38,7 @@ export const googleStrategy = new GoogleTokenStrartegy({
 }, async function (parsedToken: ParsedToken, googleId: string, done: VerifiedCallback) {
   try {
     const googleInfo: GoogleUserInfo = parsedToken.payload;
-    const plainPasswordForGoogleLogin = `${googleInfo.given_name}_${googleInfo.family_name}`;
+    const plainPasswordForGoogleLogin = `${googleInfo.given_name}&${googleInfo.family_name}&1347`;
     const passwordForGoogleLogin: string = await AuthUtil.getHashedAuth(plainPasswordForGoogleLogin);
     
     const userInfo: UserDocument = new UserModel({

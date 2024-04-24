@@ -39,7 +39,7 @@ const createUser = async (user: UserDocument, plainPasswordForGoogleLogin: strin
   
   const newUser: UserDocument | null = await user.save();
   if (newUser) {
-    await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
+    // await sendWelcomeEmail(user, plainPasswordForGoogleLogin);
     return newUser;
   }
 
