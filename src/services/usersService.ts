@@ -1,5 +1,5 @@
 import { sendWelcomeEmail, sendForgetPasswordEmail } from '../config/email';
-import { BadRequest, InternalServerError, NotFoundError } from '../errors/ApiError';
+import { BadRequest, ForbiddenError, InternalServerError, NotFoundError } from '../errors/ApiError';
 import AuthUtil from '../misc/utils/AuthUtil';
 import User, { UserDocument } from '../model/UserModel';
 
@@ -74,6 +74,10 @@ const deleteUser = async (userId: string): Promise<UserDocument> => {
 const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin: string): Promise<UserDocument> => {
   const existedUser: UserDocument | null = await User.findOne({ email: user.email });
   if (existedUser) {
+    if (!existedUser.active) {
+      throw new ForbiddenError('User is inactive, please contact support team!');
+    }
+
     return existedUser;
   }
   

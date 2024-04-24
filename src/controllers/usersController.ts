@@ -157,6 +157,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       throw new BadRequest("Password didn't match");
     }
 
+    if (!user.active) {
+      throw new ForbiddenError("User is inactive, please contact support team!");
+    }
+
     const tokens: JwtTokens = await AuthUtil.generateTokens(user);
     return res.status(200).json({ tokens, user });
   } catch (e) {
@@ -195,9 +199,9 @@ export const forgetPassword = async (req: Request, res: Response, next: NextFunc
       resetPasswordInfo.userEmail
     );
 
-    const updatedUser: UserDocument = await usersService.updatePassword(user);
+    await usersService.updatePassword(user);
   
-    return res.status(200).json(updatedUser);
+    return res.sendStatus(204);
   } catch (e) {
     if (e instanceof mongoose.Error) { // from mongoose
       return next(new BadRequest(e.message ?? 'Wrong format to reset password'));
