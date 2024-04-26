@@ -148,7 +148,66 @@ Enums
 
    <a name="architecture_design"></a>
    ### Architecture & Design:
-
+      src
+      ┣ assets
+      ┃ ┗ images
+      ┃ ┃ ┣ ERD.png
+      ┃ ┃ ┗ test.png
+      ┣ config
+      ┃ ┣ email.ts
+      ┃ ┗ passport.ts
+      ┣ controllers
+      ┃ ┣ util
+      ┃ ┃ ┗ controllerUtil.ts
+      ┃ ┣ adminController.ts
+      ┃ ┣ categoriesController.ts
+      ┃ ┣ filesController.ts
+      ┃ ┣ ordersController.ts
+      ┃ ┣ productsController.ts
+      ┃ ┗ usersController.ts
+      ┣ errors
+      ┃ ┗ ApiError.ts
+      ┣ middlewares
+      ┃ ┣ adminCheck.ts
+      ┃ ┗ apiErrorHandlerMiddleware.ts
+      ┣ misc
+      ┃ ┣ types
+      ┃ ┃ ┣ Category.ts
+      ┃ ┃ ┣ GoogleCredential.ts
+      ┃ ┃ ┣ JwtPayload.ts
+      ┃ ┃ ┣ Order.ts
+      ┃ ┃ ┣ Passport.ts
+      ┃ ┃ ┣ Password.ts
+      ┃ ┃ ┣ Payment.ts
+      ┃ ┃ ┣ Product.ts
+      ┃ ┃ ┣ Size.ts
+      ┃ ┃ ┣ Sort.ts
+      ┃ ┃ ┗ User.ts
+      ┃ ┗ utils
+      ┃ ┃ ┗ AuthUtil.ts
+      ┣ model
+      ┃ ┣ AddressModel.ts
+      ┃ ┣ CategoryModel.ts
+      ┃ ┣ OrderItemModel.ts
+      ┃ ┣ OrderModel.ts
+      ┃ ┣ ProductModel.ts
+      ┃ ┗ UserModel.ts
+      ┣ routers
+      ┃ ┣ adminRouter.ts
+      ┃ ┣ categoriesRouter.ts
+      ┃ ┣ filesRouter.ts
+      ┃ ┣ orderRouter.ts
+      ┃ ┣ productsRouter.ts
+      ┃ ┗ usersRouter.ts
+      ┣ services
+      ┃ ┣ categoriesService.ts
+      ┃ ┣ filesService.ts
+      ┃ ┣ ordersService.ts
+      ┃ ┣ productsService.ts
+      ┃ ┗ usersService.ts
+      ┣ .DS_Store
+      ┣ app.ts
+      ┗ server.ts
    <a name="testing"></a>
    ### Testing
 
@@ -161,7 +220,6 @@ Enums
    <br />
    
    ![Test result](./src/assets/images/test.png)
-
 
       Tests
          - Controllers
