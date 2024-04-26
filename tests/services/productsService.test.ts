@@ -1,5 +1,5 @@
 import connect, { MongoHelper } from '../db-helper';
-import ProductModel, { ProductDocument } from '../../src/model/ProductModel';
+import { ProductDocument } from '../../src/model/ProductModel';
 import productsService from '../../src/services/productsService';
 import {
   FilterProduct,
@@ -17,17 +17,14 @@ const filterProducts: Partial<FilterProduct> = {
 describe('Product service test', () => {
   let mongoHelper: MongoHelper;
 
-  //connect to database
   beforeAll(async () => {
     mongoHelper = await connect();
   });
 
-  // close database
   afterAll(async () => {
     await mongoHelper.closeDatabase();
   });
 
-  // clear database after each test
   afterEach(async () => {
     await mongoHelper.clearDatabase();
   });
