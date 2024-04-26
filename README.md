@@ -9,7 +9,7 @@
   I enjoyed the project with full of joy and also with lots of obstacles, but really had fun!  
   
   Check out the result here
-  Frontend:  (http://some-site)[]
+  Frontend:  (https://cool-awsome-shopping.netlify.app)[https://cool-awsome-shopping.netlify.app/home]
   Backend: (https://fs17-fullstack.onrender.com/api/v1/products)[https://fs17-fullstack.onrender.com/api/v1/products]
 
 ## Introduction
