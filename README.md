@@ -1,5 +1,6 @@
-# Fullstack E-commerce REST APIs
-  Hi, this is a backend part of Fullstack project in 2024 at Intergify.
+<a name="intro"></a>
+# Fullstack E-commerce Backend
+  Hi, this is a backend part of Fullstack project at Intergify 2024.
   
   This backend provides a bunch of APIs to accomodate nice features in E-commerce transactioins and authentication all the data is saved in MongoDB.
 
@@ -12,7 +13,26 @@
   Frontend: (https://cool-awsome-shopping.netlify.app)[https://cool-awsome-shopping.netlify.app]
   Backend: (https://fs17-fullstack.onrender.com/api/v1/products)[https://fs17-fullstack.onrender.com/api/v1/products]
 
-## Introduction
+<a name="table_of_contents"></a>
+## Table of Contents
+   - [Introduction](#intro)
+   - [Table of Contents](#table_of_contents)
+   - [Data Structure](#data_structure)
+   - [Getting Started](#getting_started)
+      - [Prerequisites](#prerequisites)
+      - [Clone the project](#clone)
+      - [Set environment variables](#setEnv)
+      - [Install and run](#install)
+      - [Navgiate](#navigate)
+   - [Usage](#usage)
+      - [Features](#features)
+      - [Additional Features](#additional_features)
+      - [Architecture and Design](#architecture_design)
+      - [Testing](#testing)
+      - [Deployment](#deployment)
+
+<a name="data_structure"></a>
+## Data structure
 ![ERD Diagram](./src/assets/images/ERD.png)
 
 Entities
@@ -26,33 +46,51 @@ Enums
    - OrderStatus
    - UserRole
 
+<a name="getting_started"></a>
 ## Getting started
+   <a name="prerequisites"></a>
    ### Prerequisites
    - node `^19.2.0`
    - npm `^9.2.0`
 
    Make sure you have [npm](https://www.npmjs.com/get-npm) installed globally.
 
+   <a name="clone"></a>
    #### 1.Clone the project:
    ```bash
    $ git clone https://github.com/Woongsik/fullstack-e-commerce-api.git
-   $ cd e-commerce-api
+   $ cd fullstack-e-commerce-api
    ```
+   <a name="setEnv"></a>
+   #### 2. Set envrionment variables 
+   Check the .envExample file as .env
+   This should be done to run the the app
 
-   #### 2.Install and run:
+   <a name="install"></a>
+   #### 3.Install and run:
    ```bash
    $ npm install    # Install project dependencies
    $ npm run start  # Compile and launch on local environment
    ```
 
-   #### 3. Navigate to [http://localhost:8080](http://localhost:8080)
+   <a name="navigate"></a>
+   #### 4. Navigate to [http://localhost:{yourPortFromEnv}](http://localhost:8080)
 
-## Authentication
-   For security, this API implemented user authentication using JSON Web Tokens (JWT). 
-   Each user should have a unique email. 
-   Admin endpoints have the special privileges for access.
-
-## Features
+<a name="usage"></a>
+## Usage:
+   <a name="script"></a>
+   ### Scripts
+   In the package.json, below scripts are used.
+   ```bash
+   "scripts": {
+      "start": "node dist/server.js",
+      "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+      "build": "tsc -p .",
+      "test": "jest --runInBand --forceExit --detectOpenHandles --coverage  --verbose false"
+   }
+   ```
+<a name="features"></a>
+### Features
    1. Products
       - Get list of all products with/without pagination(limit, offset)
       - Get list of products, filtering (search) by: title, categories, sizes, price range 
@@ -85,6 +123,7 @@ Enums
       - Upload image to Cloudinary
       - Delete image from Cloudinary
 
+  <a name="additional_features"></a>
   ### Additional Features
       1. Welcoming email 
          - When new user is registered, welcoming email will be sent 
@@ -105,44 +144,49 @@ Enums
       
       5. Admin 
          - The Admin role will be given only accpeted/registered email 
+         - Other email will be registered as only Customer but can be changed by Admin
          - ie. 
             ```bash
-               admin@mail.com (just for testing purpose in the project)
+               admin@mail.com (For testing purpose in the project)
             ``` 
-      
-## Testing
-   For the testing, Jest, Supertest, MongoDB memory server are used.
-   ![Test result](./src/assets/images/test.png)
+   <a name="architecture_design"></a>
+   ### Architecture & Design:
 
-   Total 41 tests, 7 suits succeeded
+   <a name="testing"></a>
+   ### Testing
+      For the testing, Jest, Supertest, MongoDB memory server are used.
+      ![Test result](./src/assets/images/test.png)
 
-   Tests
-      - Controllers
-         - categoriesController.test.ts
-         - productsController.test.ts
-         - usersController.test.ts
-      - Middlewares
-         - adminCheck.spec.ts
-      - Services
-         - categoreisService.test.ts
-         - productsService.test.ts
-         - usersService.test.ts
+      Total 41 tests, 7 suits succeeded
 
-   - [Jest](https://jestjs.io/), 
-   - [Supertest](https://www.npmjs.com/package/supertest), 
-   - [MongoDB memory server](https://www.npmjs.com/package/mongodb-memory-server)
+      Tests
+         - Controllers
+            - categoriesController.test.ts
+            - productsController.test.ts
+            - usersController.test.ts
+         - Middlewares
+            - adminCheck.spec.ts
+         - Services
+            - categoreisService.test.ts
+            - productsService.test.ts
+            - usersService.test.ts
 
-   Check test code in src/tests
-   ```bash
-   $ npm run test
-   ```
+      - [Jest](https://jestjs.io/), 
+      - [Supertest](https://www.npmjs.com/package/supertest), 
+      - [MongoDB memory server](https://www.npmjs.com/package/mongodb-memory-server)
 
-## Deployment
-   The API is live now hosted by RENDER
-   Check the live link here [https://fs17-fullstack.onrender.com](https://fs17-fullstack.onrender.com)
+      Check test code in src/tests
+      ```bash
+      $ npm run test
+      ```
 
-   - Some examples
-      - [All products](https://fs17-fullstack.onrender.com/api/v1/products/api/v1/products)
-      - [All categories](https://fs17-fullstack.onrender.com/api/v1/categories)
+   <a name="architecture_design"></a>
+   ### Deployment
+      The API is live now hosted by RENDER
+      Check the live link here [https://fs17-fullstack.onrender.com](https://fs17-fullstack.onrender.com)
 
-   Other features requires authenticate via login/register 
+      - Some examples
+         - [All products](https://fs17-fullstack.onrender.com/api/v1/products/api/v1/products)
+         - [All categories](https://fs17-fullstack.onrender.com/api/v1/categories)
+
+      Other features requires authenticate via login/register 
