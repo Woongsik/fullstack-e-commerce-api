@@ -84,14 +84,17 @@ const findOrCreateUser = async (user: UserDocument, plainPasswordForGoogleLogin:
   return await createUser(user, plainPasswordForGoogleLogin);
 }
 
-const updatePassword = async (user: UserDocument): Promise<UserDocument> => {
+const updatePassword = async (user: UserDocument, sendEmail: boolean = false): Promise<UserDocument> => {
   const plainPasswordToReset: string = `temp&${user.firstname}&1347`;
   const hashedPassword: string = await AuthUtil.getHashedAuth(plainPasswordToReset);
   user.password = hashedPassword;
   
   const updatedUser: UserDocument | null = await user.save();
   if (updatedUser) {
-    await sendForgetPasswordEmail(user, plainPasswordToReset);
+    if (sendEmail) {
+      await sendForgetPasswordEmail(user, plainPasswordToReset);
+    }
+    
     return updatedUser;
   }
 

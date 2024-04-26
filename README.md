@@ -1,27 +1,30 @@
-# E-commerce API
-  The project is a part of Integrify's Node.js backend module 2024 and will be used for fullstack project.
+# Fullstack E-commerce REST APIs
+  Hi, this is a backend part of Fullstack project in 2024 at Intergify.
   
-  We as a group, [Woong](https://github.com/Woongsik), [Roshan](https://github.com/roshanbist) and [Ganesh](https://github.com/ganesh-poudel), 
-  simulated E-commerce API and try to provide a good collection of REST APIs between users and server transactions.
+  This backend provides a bunch of APIs to accomodate nice features in E-commerce transactioins and authentication all the data is saved in MongoDB.
 
-  Each entity basically have a CRUD(Create, Read, Update, Delete) operations but also a special access only for ADMIN.
+  Basically try to mimic the E-commerce site and make the site fully functional both frontend and backend side in my own way. 
+  Simulate the way of Payment, Mailing, Hosting Images, Authenticate, Google account login etc.
   
-  This is built with Typescript, Node, Express and MongoDB.
+  I enjoyed the project with full of joy and also with lots of obstacles :) But had fun!  
+  
+  Check out the result here
+  Frontend:  ('http://some-site')['']
+  Backend: ('http://some-site')['']
 
 ## Introduction
-![ERD Diagram](./src/assets/images/ERD-ECOMMERCE.png)
+![ERD Diagram](./src/assets/images/ERD.png)
 
-We have structured base entities 
-   
+Entities
    - Users
-   
    - Products
-   
    - Categories
-   
    - Orders
-   
    - OrderItems
+Enums
+   - Size
+   - OrderStatus
+   - UserRole
 
 ## Getting started
    ### Prerequisites
@@ -32,7 +35,7 @@ We have structured base entities
 
    #### 1.Clone the project:
    ```bash
-   $ git clone https://github.com/Woongsik/e-commerce-api.git
+   $ git clone https://github.com/Woongsik/fullstack-e-commerce-api.git
    $ cd e-commerce-api
    ```
 
@@ -45,13 +48,15 @@ We have structured base entities
    #### 3. Navigate to [http://localhost:8080](http://localhost:8080)
 
 ## Authentication
-   For security, this API should implement user authentication using JSON Web Tokens (JWT). 
-   Each user should have a unique username and password OR broker authentication. Certain admin endpoints may require special privileges for access.
+   For security, this API implemented user authentication using JSON Web Tokens (JWT). 
+   Each user should have a unique email. 
+   Admin endpoints have the special privileges for access.
 
 ## Features
    1. Products
       - Get list of all products with/without pagination(limit, offset)
-      - Get list of products, filtering (search) by: name, categories, size
+      - Get list of products, filtering (search) by: title, categories, sizes, price range 
+      - Get list of sorted products by createdAt, price, title (ASC, DESC)
       - Get a product by product id
 
    2. Categories
@@ -61,9 +66,9 @@ We have structured base entities
    3. Users
       - Sign up a new user (username, password, first name, last name, email, address)
       - Sign in user with email/password
-      - Update user profile (first name, last name, email)
+      - Update user profile (username, first name, last name, address)
+      - Update password (old password, new password)
       - Forget password request
-      - Change password (username, old password, new password)
 
    4. Order
       - Get list of all orders
@@ -71,30 +76,41 @@ We have structured base entities
       - Get a user's order by order ID
 
    5. Admin 
-      - Change a User's role to Admin or Customer, 
-      - Change a User's active to Active or Inactive
-      - Create a new category, update, remove
-      - Create a new product, update, remove
+      - Create a new product and update, remove
+      - Create a new category and update, remove
+      - Update a User role to Admin/Customer, 
+      - Update a User active to Active/Inactive
+      - Remove a user
+
+   6. Files
+      - Upload image to Cloudinary
+      - Delete image from Cloudinary
 
   ### Additional Features
       1. Welcoming email 
-         - When new user is registered, welcoming email is sent 
+         - When new user is registered, welcoming email will be sent 
+         - Wwhen user forget the password, reset password will be sent
          - [Mailersend](https://www.mailersend.com/)
 
-      2. Google account login
-         - User is able to use their google account to login/registeration
-         - Welcoming email generate an initial password for email/passowrd login
-         
-      3. Email check if already in use
-         - Email address will be checked if it is in use already before sending all user info for registration
+      2. Image hosting
+         - Upload image to cloudinary
+         - [Cloudinary](https://cloudinary.com/)
+
+      3. Payment
+         - Simulate payment system 
+         - [Stripe](https://stripe.com/en-fi)
+
+      4. Google account login
+         - User is able to use google account to login/registeration
+         - Welcoming email generate an initial password for plain email/passowrd login
       
-      4. Admin check 
+      5. Admin 
          - The Admin role will be given only accpeted/registered email 
          - ie. 
             ```bash
                admin@mail.com (just for testing purpose in the project)
             ``` 
-
+      
 ## Testing
    For the testing, Jest, Supertest, MongoDB memory server are used.
 
@@ -116,5 +132,5 @@ We have structured base entities
    - Some examples
       - [All products](https://fs17-backend-b5i2.onrender.com/api/v1/products)
       - [All categories](https://fs17-backend-b5i2.onrender.com/api/v1/categories)
-      - [All orders](https://fs17-backend-b5i2.onrender.com/api/v1/orders)
-      - [All users](https://fs17-backend-b5i2.onrender.com/api/v1/users)
+
+   Other features requires accessToken via login/register 

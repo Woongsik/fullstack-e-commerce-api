@@ -199,7 +199,7 @@ export const forgetPassword = async (req: Request, res: Response, next: NextFunc
       resetPasswordInfo.userEmail
     );
 
-    await usersService.updatePassword(user);
+    await usersService.updatePassword(user, true);
   
     return res.sendStatus(204);
   } catch (e) {
@@ -227,7 +227,7 @@ export const updatePassword = async (req: Request, res: Response, next: NextFunc
     }
 
     user.password = await AuthUtil.getHashedAuth(updateInfo.newPassword);
-    const updatedUser: UserDocument = await usersService.updatePassword(user);
+    const updatedUser: UserDocument = await usersService.updatePassword(user, false);
     
     return res.status(200).json(updatedUser);
   } catch (e) {
