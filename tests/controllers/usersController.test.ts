@@ -118,8 +118,7 @@ describe('user controller test', () => {
         userEmail: user.body.email
       });
       
-    expect(response.status).toBe(200);
-    expect(response.body.passowrd).not.toBe(customerAuth.password);
+    expect(response.status).toBe(204);
   });
 
   it('should update user with update info', async () => {

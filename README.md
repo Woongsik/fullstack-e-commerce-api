@@ -6,11 +6,11 @@
   Basically try to mimic the E-commerce site and make the site fully functional both frontend and backend side in my own way. 
   Simulate the way of Payment, Mailing, Hosting Images, Authenticate, Google account login etc.
   
-  I enjoyed the project with full of joy and also with lots of obstacles :) But had fun!  
+  I enjoyed the project with full of joy and also with lots of obstacles, but really had fun!  
   
   Check out the result here
-  Frontend:  ('http://some-site')['']
-  Backend: ('http://some-site')['']
+  Frontend:  (http://some-site)[]
+  Backend: (https://fs17-fullstack.onrender.com/api/v1/products)[https://fs17-fullstack.onrender.com/api/v1/products]
 
 ## Introduction
 ![ERD Diagram](./src/assets/images/ERD.png)
@@ -71,8 +71,7 @@ Enums
       - Forget password request
 
    4. Order
-      - Get list of all orders
-      - Get list of all user's order
+      - Get list of all user's orders
       - Get a user's order by order ID
 
    5. Admin 
@@ -97,11 +96,11 @@ Enums
          - [Cloudinary](https://cloudinary.com/)
 
       3. Payment
-         - Simulate payment system 
+         - Simulate payment transaction 
          - [Stripe](https://stripe.com/en-fi)
 
       4. Google account login
-         - User is able to use google account to login/registeration
+         - User is able to login/registeration by google account
          - Welcoming email generate an initial password for plain email/passowrd login
       
       5. Admin 
@@ -113,11 +112,24 @@ Enums
       
 ## Testing
    For the testing, Jest, Supertest, MongoDB memory server are used.
+   ![Test result](./src/assets/images/test.png)
+
+   Total 41 tests, 7 suits succeeded
+
+   Tests
+      - Controllers
+         - categoriesController.test.ts
+         - productsController.test.ts
+         - usersController.test.ts
+      - Middlewares
+         - adminCheck.spec.ts
+      - Services
+         - categoreisService.test.ts
+         - productsService.test.ts
+         - usersService.test.ts
 
    - [Jest](https://jestjs.io/), 
-   
    - [Supertest](https://www.npmjs.com/package/supertest), 
-   
    - [MongoDB memory server](https://www.npmjs.com/package/mongodb-memory-server)
 
    Check test code in src/tests
@@ -127,10 +139,10 @@ Enums
 
 ## Deployment
    The API is live now hosted by RENDER
-   Check the live link here [https://fs17-backend-b5i2.onrender.com](https://fs17-backend-b5i2.onrender.com)
+   Check the live link here [https://fs17-fullstack.onrender.com](https://fs17-fullstack.onrender.com)
 
    - Some examples
-      - [All products](https://fs17-backend-b5i2.onrender.com/api/v1/products)
-      - [All categories](https://fs17-backend-b5i2.onrender.com/api/v1/categories)
+      - [All products](https://fs17-fullstack.onrender.com/api/v1/products/api/v1/products)
+      - [All categories](https://fs17-fullstack.onrender.com/api/v1/categories)
 
-   Other features requires accessToken via login/register 
+   Other features requires authenticate via login/register 
