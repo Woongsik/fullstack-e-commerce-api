@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 import { 
   ApiError, 
@@ -12,7 +13,9 @@ import { Order } from '../misc/types/Order';
 import { UserDocument } from '../model/UserModel';
 import { getUserFromRequest } from './util/controllerUtil';
 
-const secretKey = 'sk_test_51P6SE2Jo0VhvXeMmlsDrG67UTAFU772Qmbo6WImJm61GIRRR3WJ3Z9InIGqU5tMEw7PB5yk8oXSqLNjsTrySlg7s005fzisE74';
+dotenv.config({ path: '.env' });
+
+const secretKey = process.env.STRIPE_SECRET;
 const stripe = require("stripe")(secretKey);
 
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +24,7 @@ export const getAllOrders = async (req: Request, res: Response, next: NextFuncti
     const orders: OrderDocument[] = await ordersService.getAllOrders(user._id);
     return res.status(200).json(orders);
   } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {// from mongoose
+    if (e instanceof mongoose.Error.CastError) { // from mongoose
       return next(new BadRequest('Wrong format to get orders'));
     } else if (e instanceof ApiError) {
       return next(e);
