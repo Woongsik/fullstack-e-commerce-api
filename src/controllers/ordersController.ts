@@ -15,7 +15,7 @@ import { getUserFromRequest } from './util/controllerUtil';
 
 dotenv.config({ path: '.env' });
 
-const secretKey = process.env.STRIPE_SECRET;
+const secretKey = process.env.STRIPE_SECRET as string;
 const stripe = require("stripe")(secretKey);
 
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
