@@ -254,7 +254,7 @@ Enums
    - Render
      - Check the live link here [From Render instance](https://fs17-fullstack.onrender.com)
      - Some examples
-       - [All products](https://fs17-fullstack.onrender.com/api/v1/products/api/v1/products)
+       - [All products](https://fs17-fullstack.onrender.com/api/v1/products)
        - [All categories](https://fs17-fullstack.onrender.com/api/v1/categories)
    
    Other features requires authenticate via login/register 
