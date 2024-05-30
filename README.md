@@ -248,7 +248,7 @@ Enums
    - Amazon
      - Check the live link here [From EC2 instance](http://ec2-13-60-36-38.eu-north-1.compute.amazonaws.com:8080)
      - Some examples
-       - [All products](http://ec2-13-60-36-38.eu-north-1.compute.amazonaws.com:8080/api/v1/products/api/v1/products)
+       - [All products](http://ec2-13-60-36-38.eu-north-1.compute.amazonaws.com:8080/api/v1/products)
        - [All categories](http://ec2-13-60-36-38.eu-north-1.compute.amazonaws.com:8080/api/v1/categories)
 
    - Render
